@@ -5,15 +5,15 @@
       <bpmn:outgoing>Flow_147wnul</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_147wnul" sourceRef="StartEvent_1" targetRef="Gateway_0bv2cwo" />
-    <bpmn:task id="Activity_13q5z1l" name="Parallel User Task 1">
+    <bpmn:userTask id="Activity_13q5z1l" name="Parallel User Task 1">
       <bpmn:incoming>Flow_1khssjq</bpmn:incoming>
       <bpmn:outgoing>Flow_1bwtlws</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_1khssjq" sourceRef="Gateway_0bv2cwo" targetRef="Activity_13q5z1l" />
-    <bpmn:task id="Activity_0zxso6u" name="Parallel User Task 2">
+    <bpmn:userTask id="Activity_0zxso6u" name="Parallel User Task 2">
       <bpmn:incoming>Flow_16hx2n0</bpmn:incoming>
       <bpmn:outgoing>Flow_01y1ngd</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:userTask>
     <bpmn:sequenceFlow id="Flow_16hx2n0" sourceRef="Gateway_0bv2cwo" targetRef="Activity_0zxso6u" />
     <bpmn:parallelGateway id="Gateway_0bv2cwo">
       <bpmn:incoming>Flow_147wnul</bpmn:incoming>

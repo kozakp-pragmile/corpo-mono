@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node src/main.js"
+    "single": "node src/single-user-task.js",
+    "parallel": "node src/parallel-user-tasks.js"
   }
 }

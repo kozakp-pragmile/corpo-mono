@@ -29,14 +29,14 @@ async function run() {
   step("Start process instance");
   const instance = await hb.startProcessByKey(PROCESS_KEY, {
     businessKey: `test-${Date.now()}`,
-    variables: {
+    processVariables: {
       requester: "alice",
       priority: 3,
       approved: false,
     },
     userId: USER_ID,
   });
-  const processInstanceId = instance.id;
+  const processInstanceId = instance.processInstanceId;
   ok(`Started: ${processInstanceId}`);
 
   // ── 4. Read process variables ────────────────────────────
@@ -72,9 +72,7 @@ async function run() {
 
   // ── 8. Set local variables on the task ───────────────────
   step("Set local variables on the task");
-  await hb.setTaskLocalVariables(task.id, {
-    comment: "Looks good to me",
-  });
+  await hb.setTaskLocalVariables(task.id, { comment: "Looks good to me" });
   ok("Local variables set");
 
   step("Get task local variables");
@@ -88,7 +86,7 @@ async function run() {
   step("Complete the user task");
   await hb.completeTask(task.id, {
     userId: USER_ID,
-    variables: { approved: true },
+    processVariables: { approved: true },
   });
   ok("Task completed");
 

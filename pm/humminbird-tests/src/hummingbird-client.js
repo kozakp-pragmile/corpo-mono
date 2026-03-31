@@ -81,15 +81,15 @@ export function createClient(baseUrl = DEFAULT_BASE_URL) {
     return request("GET", `/api/v1/process-definition/key/${key}`);
   }
 
-  async function startProcessByKey(key, { businessKey, variables, userId = DEFAULT_USER_ID } = {}) {
-    return request("POST", `/api/v1/process-definition/key/${key}/start`, {
-      body: { businessKey, variables, userId },
+  async function startProcessByKey(key, { businessKey, processVariables, userId = DEFAULT_USER_ID } = {}) {
+    return request("POST", `/api/v2/latest-process-definitions/${key}:start`, {
+      body: { businessKey, processVariables, userId },
     });
   }
 
-  async function startProcessById(id, { businessKey, variables, userId = DEFAULT_USER_ID } = {}) {
-    return request("POST", `/api/v1/process-definition/${id}/start`, {
-      body: { businessKey, variables, userId },
+  async function startProcessById(id, { businessKey, processVariables, userId = DEFAULT_USER_ID } = {}) {
+    return request("POST", `/api/v2/process-definitions/${id}:start`, {
+      body: { businessKey, processVariables, userId },
     });
   }
 
@@ -114,7 +114,7 @@ export function createClient(baseUrl = DEFAULT_BASE_URL) {
   }
 
   async function terminateProcess(processInstanceId) {
-    return request("POST", `/api/v1/process-instance/${processInstanceId}/terminate`);
+    return request("POST", `/api/v2/process-instances/${processInstanceId}:terminate`);
   }
 
   // ── Tasks ───────────────────────────────────────────────────
@@ -125,13 +125,15 @@ export function createClient(baseUrl = DEFAULT_BASE_URL) {
     });
   }
 
-  async function getTask(taskId) {
-    return request("GET", `/api/v1/task/${taskId}`);
+  async function getTask(taskId, { include } = {}) {
+    return request("GET", `/api/v2/user-task-instances/${taskId}`, {
+      query: { include: include?.join(",") },
+    });
   }
 
-  async function completeTask(taskId, { userId = DEFAULT_USER_ID, variables } = {}) {
-    return request("POST", `/api/v1/task/${taskId}/complete`, {
-      body: { userId, variables },
+  async function completeTask(taskId, { userId = DEFAULT_USER_ID, processVariables, localVariables } = {}) {
+    return request("POST", `/api/v2/user-task-instances/${taskId}:complete`, {
+      body: { userId, processVariables, localVariables },
     });
   }
 
@@ -149,9 +151,15 @@ export function createClient(baseUrl = DEFAULT_BASE_URL) {
     return request("GET", `/api/v1/task/${taskId}/local-variables`);
   }
 
-  async function setTaskLocalVariables(taskId, modifications) {
-    return request("POST", `/api/v1/task/${taskId}/local-variables`, {
-      body: { modifications },
+  async function setTaskLocalVariables(taskId, variables) {
+    return request("POST", `/api/v2/user-task-instances/${taskId}/local-variables`, {
+      body: variables,
+    });
+  }
+
+  async function setTaskProcessVariables(taskId, variables) {
+    return request("POST", `/api/v2/user-task-instances/${taskId}/process-variables`, {
+      body: variables,
     });
   }
 
@@ -163,9 +171,25 @@ export function createClient(baseUrl = DEFAULT_BASE_URL) {
     });
   }
 
-  async function completeExternalTask(externalTaskId, { workerId, variables } = {}) {
-    return request("POST", `/api/v1/external-task/${externalTaskId}/complete`, {
-      body: { workerId, variables },
+  async function completeExternalTask(externalTaskId, { workerId, processVariables, localVariables } = {}) {
+    return request("POST", `/api/v2/external-task-instances/${externalTaskId}:complete`, {
+      body: { workerId, processVariables, localVariables },
+    });
+  }
+
+  async function failExternalTask(externalTaskId, { workerId, errorMessage, errorDetails, processVariables, localVariables } = {}) {
+    return request("POST", `/api/v2/external-task-instances/${externalTaskId}:fail`, {
+      body: { workerId, errorMessage, errorDetails, processVariables, localVariables },
+    });
+  }
+
+  async function recoverExternalTask(externalTaskId) {
+    return request("POST", `/api/v2/external-task-instances/${externalTaskId}:recover`);
+  }
+
+  async function lockSingleExternalTask({ executionId, worker, lockDurationInMillis = 10000 }) {
+    return request("POST", "/api/v2/external-task-instances:lock-single", {
+      body: { executionId, worker, lockDurationInMillis },
     });
   }
 
@@ -196,8 +220,12 @@ export function createClient(baseUrl = DEFAULT_BASE_URL) {
     getTaskVariables,
     getTaskLocalVariables,
     setTaskLocalVariables,
+    setTaskProcessVariables,
     fetchAndLockExternalTasks,
     completeExternalTask,
+    failExternalTask,
+    recoverExternalTask,
+    lockSingleExternalTask,
     triggerMessage,
   };
 }

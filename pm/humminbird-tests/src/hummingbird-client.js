@@ -11,7 +11,12 @@ export function createClient(baseUrl = DEFAULT_BASE_URL) {
     const url = new URL(base + path);
     if (query) {
       for (const [k, v] of Object.entries(query)) {
-        if (v !== undefined && v !== null) url.searchParams.set(k, v);
+        if (v === undefined || v === null) continue;
+        if (Array.isArray(v)) {
+          for (const item of v) url.searchParams.append(k, item);
+        } else {
+          url.searchParams.set(k, v);
+        }
       }
     }
 
@@ -127,7 +132,7 @@ export function createClient(baseUrl = DEFAULT_BASE_URL) {
 
   async function getTask(taskId, { include } = {}) {
     return request("GET", `/api/v2/user-task-instances/${taskId}`, {
-      query: { include: include?.join(",") },
+      query: { include },
     });
   }
 

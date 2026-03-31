@@ -10,93 +10,135 @@ const BASE_URL = process.env.HUMMINGBIRD_URL || "http://localhost:8095/hummingbi
 const PROCESS_KEY = "simple_user_task";
 const USER_ID = "test-user";
 
+const TASK_INCLUDES = ["processVariables", "localVariables", "processInstance", "processDefinition", "userTaskDefinition"];
+
 const hb = createClient(BASE_URL);
 
 async function run() {
   console.log(`\nHummingbird API: ${BASE_URL}\n`);
 
-  // ── 1. Deploy BPMN ───────────────────────────────────────
+  // ── Setup: Deploy BPMN ─────────────────────────────────────
   step("Deploy simple-user-task.bpmn");
   const deployment = await hb.deploy(resolve(BPMN_DIR, "simple-user-task.bpmn"));
   ok(`Deployed: ${deployment.id}`);
 
-  // ── 2. Look up the process definition ────────────────────
-  step("Get process definition by key");
-  const pd = await hb.getProcessDefinitionByKey(PROCESS_KEY);
-  ok(`Found: ${pd.id} (key=${pd.key})`);
-
-  // ── 3. Start process instance with variables ─────────────
-  step("Start process instance");
+  // ── 1. Start process with variables ────────────────────────
+  step("1. Start process instance with variables");
   const instance = await hb.startProcessByKey(PROCESS_KEY, {
     businessKey: `test-${Date.now()}`,
     processVariables: {
-      requester: "alice",
+      status: "pending",
       priority: 3,
-      approved: false,
+      notes: "initial notes from process start",
+      onlyProcess: "this exists only at process level",
     },
     userId: USER_ID,
   });
   const processInstanceId = instance.processInstanceId;
   ok(`Started: ${processInstanceId}`);
 
-  // ── 4. Read process variables ────────────────────────────
-  step("Get process variables");
+  // ── 2. Check variables via process instance ────────────────
+  step("2. Check variables via process instance");
   await hb.getProcessVariables(processInstanceId);
 
-  // ── 5. Update process variables ──────────────────────────
-  step("Set additional process variables");
+  // ── 3. Change variables via process instance ───────────────
+  step("3. Change variables via process instance");
   await hb.setProcessVariables(processInstanceId, {
-    reviewer: "bob",
+    status: "in-review",
     priority: 5,
   });
-  ok("Variables updated");
+  ok("Process variables updated");
 
-  step("Get process variables after update");
+  // ── 4. Check variables via process instance (after update) ─
+  step("4. Check variables via process instance (after update)");
   await hb.getProcessVariables(processInstanceId);
 
-  // ── 6. Find the active user task ─────────────────────────
-  step("Find active tasks for the process instance");
+  // ── 5. Find the active user task ───────────────────────────
+  step("5. Find active user task instance");
   const tasks = await hb.getTasks({ processInstanceId, active: true });
-
   if (!tasks.length) {
     fail("No active tasks found — stopping");
     return;
   }
+  const taskId = tasks[0].id;
+  ok(`Active task: ${taskId} (name=${tasks[0].name})`);
 
-  const task = tasks[0];
-  ok(`Active task: ${task.id} (name=${task.name})`);
+  // ── 6. Check user task instance (before setting variables) ─
+  step("6. Check user task instance (before setting variables)");
+  await hb.getTask(taskId, { include: TASK_INCLUDES });
 
-  // ── 7. Get task variables ────────────────────────────────
-  step("Get task variables (merged view)");
-  await hb.getTaskVariables(task.id);
+  // ── 7. Set process variables via user task instance ────────
+  step("7. Set process variables via user task instance");
+  await hb.setTaskProcessVariables(taskId, {
+    status: "reviewed-via-task",
+    priority: 10,
+    reviewer: "bob",
+  });
+  ok("Process variables set via user task instance");
 
-  // ── 8. Set local variables on the task ───────────────────
-  step("Set local variables on the task");
-  await hb.setTaskLocalVariables(task.id, { comment: "Looks good to me" });
-  ok("Local variables set");
+  // ── 8. Set local variables via user task instance ──────────
+  step("8. Set local variables via user task instance (SAME NAMES as process vars)");
+  await hb.setTaskLocalVariables(taskId, {
+    status: "LOCAL-approved",
+    priority: 999,
+    notes: "LOCAL notes — should shadow process-level notes",
+    onlyLocal: "this exists only at local level",
+  });
+  ok("Local variables set — same names as process variables");
 
-  step("Get task local variables");
-  await hb.getTaskLocalVariables(task.id);
+  // ── 9. Check user task instance (v2 — separate maps) ──────
+  step("9. Check user task instance (v2 — processVariables vs localVariables)");
+  await hb.getTask(taskId, { include: TASK_INCLUDES });
 
-  // ── 9. Assign and complete the user task ──────────────────
-  step("Assign the task");
-  await hb.setTaskAssignee(task.id, USER_ID);
+  // ── 10. Check task variables via v1 (merged view) ──────────
+  step("10. Check task variables via v1 (merged view)");
+  await hb.getTaskVariables(taskId);
+
+  // ── 11. Check task LOCAL variables via v1 ──────────────────
+  step("11. Check task LOCAL variables via v1");
+  await hb.getTaskLocalVariables(taskId);
+
+  // ── 12. Check process instance variables ───────────────────
+  step("12. Check process instance variables (should have task's process-var writes)");
+  await hb.getProcessVariables(processInstanceId);
+
+  // ── 13. Assign user task instance ──────────────────────────
+  step("13. Assign user task instance");
+  await hb.setTaskAssignee(taskId, USER_ID);
   ok(`Assigned to ${USER_ID}`);
 
-  step("Complete the user task");
-  await hb.completeTask(task.id, {
+  // ── 14. Complete with overlapping names at both levels ─────
+  step("14. Complete user task with overlapping process + local variable names");
+  await hb.completeTask(taskId, {
     userId: USER_ID,
-    processVariables: { approved: true },
+    processVariables: {
+      status: "completed",
+      notes: "final process notes from completion",
+      approved: true,
+    },
+    localVariables: {
+      status: "LOCAL-completed",
+      notes: "final local notes from completion",
+      completionNote: "All checks passed",
+    },
   });
   ok("Task completed");
 
-  // ── 10. Verify process completed ─────────────────────────
-  step("Check process instance status");
+  // ── 15. Check completed user task instance (v2) ────────────
+  step("15. Check completed user task instance (v2)");
+  await hb.getTask(taskId, { include: TASK_INCLUDES });
+
+  // ── 16. Check process instance variables (final) ───────────
+  step("16. Check process instance variables (final — which values won?)");
+  await hb.getProcessVariables(processInstanceId);
+
+  // ── 17. Verify process completed ───────────────────────────
+  step("17. Verify process instance status");
   const finalInstance = await hb.getProcessInstance(processInstanceId);
   ok(`Status: ${finalInstance.status}`);
 
   console.log(`\n${"═".repeat(115)}`);
-  console.log("  Done — full lifecycle exercised successfully");
+  console.log("  Done — variable shadowing test complete");
   console.log(`${"═".repeat(115)}\n`);
 }
 

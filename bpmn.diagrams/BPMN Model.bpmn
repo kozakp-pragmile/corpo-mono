@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="definitions_d3b7147f-d895-48f3-b35d-c3cd6ea99482" targetNamespace="http://bpmn.io/schema/bpmn" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL">
+  <process id="Process_03be90dd_094a_416c_adb4_927dc1c34912" isExecutable="true" name="BPMN Model">
+    <extensionElements>
+      <camunda:properties>
+        <camunda:property name="role-admin" value="responsible"/>
+      </camunda:properties>
+    </extensionElements>
+    <startEvent id="BPMNShape_StartEvent_1767087340086" name="">
+      <outgoing>Flow_1767087348638</outgoing>
+    </startEvent>
+    <userTask camunda:formKey="482" id="BPMNShape_Task_1767087348638" name="Task 1">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="happy-path" value="gghj h;1"/>
+          <camunda:property name="role-participant" value="responsible"/>
+          <camunda:property name="external-form-id" value=""/>
+        </camunda:properties>
+        <camunda:formData>
+          <camunda:formField id="Form_1767087874664" label="Form_1767087874664" type="boolean"/>
+        </camunda:formData>
+      </extensionElements>
+      <incoming>Flow_1767087348638</incoming>
+      <outgoing>Flow_1767087383214</outgoing>
+    </userTask>
+    <endEvent id="BPMNShape_EndEvent_1767087383214" name="">
+      <incoming>Flow_1767087383214</incoming>
+    </endEvent>
+    <sequenceFlow id="Flow_1767087383214" name="" sourceRef="BPMNShape_Task_1767087348638" targetRef="BPMNShape_EndEvent_1767087383214"/>
+    <sequenceFlow id="Flow_1767087348638" name="" sourceRef="BPMNShape_StartEvent_1767087340086" targetRef="BPMNShape_Task_1767087348638"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_03ea90f1-2601-42ce-acf3-2e18d2235042">
+    <bpmndi:BPMNPlane bpmnElement="Process_03be90dd_094a_416c_adb4_927dc1c34912" id="BPMNPlane_2d36d31c-d9d9-4525-ba8e-548b9744fd10">
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_StartEvent_1767087340086" id="_BPMNShape_StartEvent_3065819998321_di">
+        <dc:Bounds height="35.0" width="35.0" x="252.5" y="92.5"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Task_1767087348638" id="_BPMNShape_UserTask_0515457138289_di">
+        <dc:Bounds height="80.0" width="100.0" x="397.5" y="80.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_EndEvent_1767087383214" id="_BPMNShape_EndEvent_6198572742687_di">
+        <dc:Bounds height="35.0" width="35.0" x="587.5" y="92.5"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1767087383214" id="Flow_SequenceFlow_5615771772908_di">
+        <di:waypoint x="497.5" y="120.0"/>
+        <di:waypoint x="542.5" y="120.0"/>
+        <di:waypoint x="542.5" y="110.0"/>
+        <di:waypoint x="587.5" y="110.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1767087348638" id="Flow_SequenceFlow_2326044559842_di">
+        <di:waypoint x="287.5" y="110.0"/>
+        <di:waypoint x="342.5" y="110.0"/>
+        <di:waypoint x="342.5" y="120.0"/>
+        <di:waypoint x="397.5" y="120.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

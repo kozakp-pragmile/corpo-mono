@@ -1,0 +1,531 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1he4oym" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.11.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:collaboration id="Collaboration_16a8zq1">
+    <bpmn:participant id="Participant_0blh6ql" name="Evaluate pushed CRE" processRef="Bosch_ICS_OrgEvaluateCRE" />
+  </bpmn:collaboration>
+  <bpmn:process id="Bosch_ICS_OrgEvaluateCRE" name="Evaluate Pushed CRE" isExecutable="true">
+    <bpmn:laneSet id="LaneSet_1e77h01">
+      <bpmn:lane id="Lane_051uvxl" name="Automation / Escalation">
+        <bpmn:flowNodeRef>icsCreDistributionEscalationServiceTask</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>icsCreDistributionEscalationMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>icsCreDistributionManualEscalationMerge</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1v7uh6n" name="CRE Owner">
+        <bpmn:flowNodeRef>Activity_1rjgoyz</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1xz1qzw</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0us94hm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0f4nfl4</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0ymibwn</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0mir27b</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>icsCreDistributionEscalationResultAccepted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>icsCreDistributionCreNotApplicableStatus</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>icsCreDistributionRejectedCreMerge</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>icsCreDistributionReceiveStopReviewMessage</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_1wymjzk" name="ICM / Functional Expert">
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_177jagk</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_1csjrdm</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0vhdms0</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0j1d4xg</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>icsCreDistributionMergeCreAccpted</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1u8evm1</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>icsCreDistributionMergeVerifyCre</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_131fjgu</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_1je3269</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>boschUserTaskDefineControl</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_0jlqmok</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Event_0lfpnmo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>icsCreDistributionReceiveStopVerificationMessage</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_1" name="CRE Distributed">
+      <bpmn:outgoing>Flow_0qfcmi5</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:serviceTask id="Activity_177jagk" name="Run Notifications" camunda:type="external" camunda:topic="Extended;ExpProcessStartNotificationGeneration">
+      <bpmn:incoming>Flow_0qfcmi5</bpmn:incoming>
+      <bpmn:outgoing>Flow_15sq7x5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_1csjrdm" name="Verification Decision" default="Flow_0om5gh4">
+      <bpmn:incoming>Flow_1b1b1tt</bpmn:incoming>
+      <bpmn:outgoing>Flow_0om5gh4</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1o3m8ov</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_0vhdms0" name="Verify CRE" camunda:formKey="creOrgEvaluation">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="cascadeCre" label="CRE Validation Decision" type="enum">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+            <camunda:value id="Accept" name="Accept" />
+            <camunda:value id="Cascade" name="Cascade" />
+            <camunda:value id="Reject" name="Not applicable" />
+            <camunda:value id="Escalate" name="Escalate" />
+          </camunda:formField>
+        </camunda:formData>
+        <camunda:properties>
+          <camunda:property name="role-participant" value="propAssignCreReceiverRef" />
+          <camunda:property name="role-participant" value="propTaskSecondLineExecutor" />
+          <camunda:property name="role-admin" value="propProcessAdminGroup" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0c7fd1d</bpmn:incoming>
+      <bpmn:outgoing>Flow_1x7dp3c</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_0j1d4xg" name="Update Comment Counter" camunda:type="external" camunda:topic="Extended;ExpUpdateCreReceiverCommentCounter">
+      <bpmn:incoming>Flow_1x7dp3c</bpmn:incoming>
+      <bpmn:outgoing>Flow_1b1b1tt</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="icsCreDistributionMergeCreAccpted" name="CRE Accepted Merge">
+      <bpmn:incoming>Flow_19swpaq</bpmn:incoming>
+      <bpmn:incoming>Flow_16brcbw</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ys22bd</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Activity_1u8evm1" name="Status Validation Completed" camunda:type="external" camunda:topic="Extended;ExpCreValidationTaskCompleted">
+      <bpmn:incoming>Flow_1ys22bd</bpmn:incoming>
+      <bpmn:outgoing>Flow_1sub8ot</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="icsCreDistributionMergeVerifyCre" name="Merge Verify CRE">
+      <bpmn:incoming>Flow_15sq7x5</bpmn:incoming>
+      <bpmn:incoming>Flow_06w02w5</bpmn:incoming>
+      <bpmn:outgoing>Flow_0c7fd1d</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:userTask id="Activity_1rjgoyz" name="Revjew Rejection Justification" camunda:formKey="creOrgReviewRejected">
+      <bpmn:extensionElements>
+        <camunda:formData>
+          <camunda:formField id="rejectedCreReviewDecision" label="Review Decision" type="enum">
+            <camunda:validation>
+              <camunda:constraint name="required" />
+            </camunda:validation>
+            <camunda:value id="Accept" name="Accept" />
+            <camunda:value id="Push" name="Push Again" />
+            <camunda:value id="Issue" name="Start Issue Process" />
+          </camunda:formField>
+        </camunda:formData>
+        <camunda:properties>
+          <camunda:property name="role-participant" value="propControlRequirementOwnerAssignmentRef" />
+          <camunda:property name="role-participant" value="propTaskSecondLineExecutor" />
+          <camunda:property name="role-admin" value="propProcessAdminGroup" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_16b9elv</bpmn:incoming>
+      <bpmn:outgoing>Flow_17qbh0q</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_1xz1qzw" name="Review Decision">
+      <bpmn:incoming>Flow_1fwfs0t</bpmn:incoming>
+      <bpmn:outgoing>Flow_0rnm3aj</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1jirs3i</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0ked726</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Activity_0us94hm" name="Process result &#38; notifications (Reject)" camunda:type="external" camunda:topic="Extended;ExpUpdateCreEvaluationNotApplicable">
+      <bpmn:incoming>Flow_1o3m8ov</bpmn:incoming>
+      <bpmn:outgoing>Flow_16b9elv</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0f4nfl4" name="Remove Org From CRE Area of Relevance" camunda:type="external" camunda:topic="Extended;ExpCrePushRemoveAcceptedOrganisation">
+      <bpmn:incoming>Flow_0rd92pz</bpmn:incoming>
+      <bpmn:outgoing>Flow_1c4rdg3</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Activity_0ymibwn" name="Update Comment Counter (review)" camunda:type="external" camunda:topic="Extended;ExpUpdateCreOwnerCommentCounter">
+      <bpmn:incoming>Flow_17qbh0q</bpmn:incoming>
+      <bpmn:outgoing>Flow_1fwfs0t</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Activity_0mir27b" name="Document CRE Verification" camunda:formKey="creValidationDocumentEscalationResult">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="role-participant" value="propControlRequirementOwnerAssignmentRef" />
+          <camunda:property name="role-participant" value="propTaskSecondLineExecutor" />
+          <camunda:property name="role-admin" value="propProcessAdminGroup" />
+        </camunda:properties>
+        <camunda:formData>
+          <camunda:formField id="creVerificationEscalationResult" label="Verification Result" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_0ivdl9t</bpmn:incoming>
+      <bpmn:outgoing>Flow_0lm3agk</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="icsCreDistributionEscalationResultAccepted" name="Accepted?">
+      <bpmn:incoming>Flow_0lm3agk</bpmn:incoming>
+      <bpmn:outgoing>Flow_19swpaq</bpmn:outgoing>
+      <bpmn:outgoing>Flow_07ersf1</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="icsCreDistributionCreNotApplicableStatus" name="CRE Not Applicable">
+      <bpmn:incoming>Flow_1c4rdg3</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:exclusiveGateway id="icsCreDistributionRejectedCreMerge" name="Merge Rejected CRE">
+      <bpmn:incoming>Flow_0rnm3aj</bpmn:incoming>
+      <bpmn:incoming>Flow_07ersf1</bpmn:incoming>
+      <bpmn:outgoing>Flow_0rd92pz</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="icsCreDistributionEscalationServiceTask" name="Escalation lvl 1" camunda:type="external" camunda:topic="Action;workflowCreValidationTaskEscalationNotificationActionGroup">
+      <bpmn:incoming>Flow_1m9ohvs</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ivdl9t</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="icsCreDistributionEscalationMerge" name="Escalation Merge">
+      <bpmn:incoming>Flow_0swendj</bpmn:incoming>
+      <bpmn:incoming>Flow_0j8vzcc</bpmn:incoming>
+      <bpmn:outgoing>Flow_0xnxdo0</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:exclusiveGateway id="icsCreDistributionManualEscalationMerge" name="Manual Escalation Merge">
+      <bpmn:incoming>Flow_0xnxdo0</bpmn:incoming>
+      <bpmn:incoming>Flow_0ked726</bpmn:incoming>
+      <bpmn:outgoing>Flow_1m9ohvs</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Activity_131fjgu" name="Update Status to open" camunda:type="external" camunda:topic="Extended;ExpCreStatusReopened">
+      <bpmn:incoming>Flow_1jirs3i</bpmn:incoming>
+      <bpmn:outgoing>Flow_06w02w5</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:boundaryEvent id="icsCreDistributionReceiveStopReviewMessage" name="Receive Stop Review" attachedToRef="Activity_1rjgoyz">
+      <bpmn:outgoing>Flow_0j8vzcc</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_06xv85q" messageRef="Message_1yjgad2" />
+    </bpmn:boundaryEvent>
+    <bpmn:boundaryEvent id="icsCreDistributionReceiveStopVerificationMessage" name="Receive Stop Verification" attachedToRef="Activity_0vhdms0">
+      <bpmn:outgoing>Flow_0swendj</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1vg6xki" messageRef="Message_07he9c2" />
+    </bpmn:boundaryEvent>
+    <bpmn:sequenceFlow id="Flow_1b1b1tt" sourceRef="Activity_0j1d4xg" targetRef="Gateway_1csjrdm" />
+    <bpmn:sequenceFlow id="Flow_0qfcmi5" sourceRef="StartEvent_1" targetRef="Activity_177jagk" />
+    <bpmn:sequenceFlow id="Flow_06w02w5" sourceRef="Activity_131fjgu" targetRef="icsCreDistributionMergeVerifyCre" />
+    <bpmn:sequenceFlow id="Flow_1o3m8ov" name="Reject" sourceRef="Gateway_1csjrdm" targetRef="Activity_0us94hm">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${cascadeCre=='Reject'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1x7dp3c" sourceRef="Activity_0vhdms0" targetRef="Activity_0j1d4xg" />
+    <bpmn:sequenceFlow id="Flow_0om5gh4" name="Accept" sourceRef="Gateway_1csjrdm" targetRef="Activity_1je3269" />
+    <bpmn:sequenceFlow id="Flow_15sq7x5" sourceRef="Activity_177jagk" targetRef="icsCreDistributionMergeVerifyCre" />
+    <bpmn:sequenceFlow id="Flow_19swpaq" name="CRE Accepted" sourceRef="icsCreDistributionEscalationResultAccepted" targetRef="icsCreDistributionMergeCreAccpted">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${creVerificationEscalationResult=='Accepted'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0swendj" sourceRef="icsCreDistributionReceiveStopVerificationMessage" targetRef="icsCreDistributionEscalationMerge" />
+    <bpmn:sequenceFlow id="Flow_16brcbw" sourceRef="Activity_1je3269" targetRef="icsCreDistributionMergeCreAccpted" />
+    <bpmn:sequenceFlow id="Flow_1ys22bd" sourceRef="icsCreDistributionMergeCreAccpted" targetRef="Activity_1u8evm1" />
+    <bpmn:sequenceFlow id="Flow_0c7fd1d" sourceRef="icsCreDistributionMergeVerifyCre" targetRef="Activity_0vhdms0" />
+    <bpmn:sequenceFlow id="Flow_16b9elv" sourceRef="Activity_0us94hm" targetRef="Activity_1rjgoyz" />
+    <bpmn:sequenceFlow id="Flow_17qbh0q" name="Accept" sourceRef="Activity_1rjgoyz" targetRef="Activity_0ymibwn" />
+    <bpmn:sequenceFlow id="Flow_1fwfs0t" sourceRef="Activity_0ymibwn" targetRef="Gateway_1xz1qzw" />
+    <bpmn:sequenceFlow id="Flow_0ked726" name="Start Issue Resolve Process / Escalate" sourceRef="Gateway_1xz1qzw" targetRef="icsCreDistributionManualEscalationMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rejectedCreReviewDecision=='Issue'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1jirs3i" name="Push Again" sourceRef="Gateway_1xz1qzw" targetRef="Activity_131fjgu">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rejectedCreReviewDecision=='Push'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0rnm3aj" sourceRef="Gateway_1xz1qzw" targetRef="icsCreDistributionRejectedCreMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${rejectedCreReviewDecision=='Accept'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_0rd92pz" sourceRef="icsCreDistributionRejectedCreMerge" targetRef="Activity_0f4nfl4" />
+    <bpmn:sequenceFlow id="Flow_1c4rdg3" sourceRef="Activity_0f4nfl4" targetRef="icsCreDistributionCreNotApplicableStatus" />
+    <bpmn:sequenceFlow id="Flow_0ivdl9t" sourceRef="icsCreDistributionEscalationServiceTask" targetRef="Activity_0mir27b" />
+    <bpmn:sequenceFlow id="Flow_0lm3agk" sourceRef="Activity_0mir27b" targetRef="icsCreDistributionEscalationResultAccepted" />
+    <bpmn:sequenceFlow id="Flow_0j8vzcc" sourceRef="icsCreDistributionReceiveStopReviewMessage" targetRef="icsCreDistributionEscalationMerge" />
+    <bpmn:sequenceFlow id="Flow_07ersf1" name="CRE Not Applicable" sourceRef="icsCreDistributionEscalationResultAccepted" targetRef="icsCreDistributionRejectedCreMerge">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">${creVerificationEscalationResult=='Rejected'}</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_1m9ohvs" sourceRef="icsCreDistributionManualEscalationMerge" targetRef="icsCreDistributionEscalationServiceTask" />
+    <bpmn:sequenceFlow id="Flow_0xnxdo0" sourceRef="icsCreDistributionEscalationMerge" targetRef="icsCreDistributionManualEscalationMerge" />
+    <bpmn:serviceTask id="Activity_1je3269" name="Process result &#38; notifications" camunda:type="external" camunda:topic="Extended;ExpUpdateCreEvaluationAccepted">
+      <bpmn:incoming>Flow_0om5gh4</bpmn:incoming>
+      <bpmn:outgoing>Flow_16brcbw</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0ycuir4" sourceRef="boschUserTaskDefineControl" targetRef="Activity_0jlqmok" />
+    <bpmn:sequenceFlow id="Flow_1xqwpft" sourceRef="Activity_0jlqmok" targetRef="Event_0lfpnmo" />
+    <bpmn:sequenceFlow id="Flow_1sub8ot" sourceRef="Activity_1u8evm1" targetRef="boschUserTaskDefineControl" />
+    <bpmn:userTask id="boschUserTaskDefineControl" name="Define Control" camunda:formKey="userTaskPageIcsDefineControl">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="role-participant" value="propAssignCreReceiverRef" />
+          <camunda:property name="role-participant" value="propTaskSecondLineExecutor" />
+          <camunda:property name="role-admin" value="propProcessAdminGroup" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1sub8ot</bpmn:incoming>
+      <bpmn:outgoing>Flow_0ycuir4</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_0jlqmok" name="Status Controls Defined" camunda:type="external" camunda:topic="Extended;ExpCreVerificationControlDefinitionCompleted">
+      <bpmn:incoming>Flow_0ycuir4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1xqwpft</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:endEvent id="Event_0lfpnmo" name="Control Defintion Completed">
+      <bpmn:incoming>Flow_1xqwpft</bpmn:incoming>
+    </bpmn:endEvent>
+  </bpmn:process>
+  <bpmn:message id="Message_07he9c2" name="sendStopValidateCRE" />
+  <bpmn:message id="Message_1yjgad2" name="sendStopReviewRejection" />
+  <bpmn:message id="Message_1s71mpn" name="startControlDefintionTaskMessage" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_16a8zq1">
+      <bpmndi:BPMNShape id="Participant_0blh6ql_di" bpmnElement="Participant_0blh6ql" isHorizontal="true">
+        <dc:Bounds x="155" y="80" width="2915" height="840" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1wymjzk_di" bpmnElement="Lane_1wymjzk" isHorizontal="true">
+        <dc:Bounds x="185" y="80" width="2885" height="310" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_1v7uh6n_di" bpmnElement="Lane_1v7uh6n" isHorizontal="true">
+        <dc:Bounds x="185" y="390" width="2885" height="330" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_051uvxl_di" bpmnElement="Lane_051uvxl" isHorizontal="true">
+        <dc:Bounds x="185" y="720" width="2885" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0xnxdo0_di" bpmnElement="Flow_0xnxdo0">
+        <di:waypoint x="1170" y="810" />
+        <di:waypoint x="1470" y="810" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1m9ohvs_di" bpmnElement="Flow_1m9ohvs">
+        <di:waypoint x="1520" y="810" />
+        <di:waypoint x="1595" y="810" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_07ersf1_di" bpmnElement="Flow_07ersf1">
+        <di:waypoint x="1905" y="575" />
+        <di:waypoint x="1905" y="485" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1920" y="526" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0j8vzcc_di" bpmnElement="Flow_0j8vzcc">
+        <di:waypoint x="1145" y="658" />
+        <di:waypoint x="1145" y="785" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0lm3agk_di" bpmnElement="Flow_0lm3agk">
+        <di:waypoint x="1815" y="600" />
+        <di:waypoint x="1880" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ivdl9t_di" bpmnElement="Flow_0ivdl9t">
+        <di:waypoint x="1695" y="810" />
+        <di:waypoint x="1765" y="810" />
+        <di:waypoint x="1765" y="640" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1c4rdg3_di" bpmnElement="Flow_1c4rdg3">
+        <di:waypoint x="2095" y="460" />
+        <di:waypoint x="2167" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rd92pz_di" bpmnElement="Flow_0rd92pz">
+        <di:waypoint x="1930" y="460" />
+        <di:waypoint x="1995" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rnm3aj_di" bpmnElement="Flow_0rnm3aj">
+        <di:waypoint x="1508" y="588" />
+        <di:waypoint x="1640" y="460" />
+        <di:waypoint x="1880" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jirs3i_di" bpmnElement="Flow_1jirs3i">
+        <di:waypoint x="1495" y="575" />
+        <di:waypoint x="1495" y="210" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1501" y="464" width="57" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ked726_di" bpmnElement="Flow_0ked726">
+        <di:waypoint x="1495" y="625" />
+        <di:waypoint x="1495" y="785" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1510" y="624" width="90" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1fwfs0t_di" bpmnElement="Flow_1fwfs0t">
+        <di:waypoint x="1375" y="600" />
+        <di:waypoint x="1470" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17qbh0q_di" bpmnElement="Flow_17qbh0q">
+        <di:waypoint x="1195" y="600" />
+        <di:waypoint x="1275" y="600" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1573" y="553" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16b9elv_di" bpmnElement="Flow_16b9elv">
+        <di:waypoint x="1015" y="600" />
+        <di:waypoint x="1095" y="600" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0c7fd1d_di" bpmnElement="Flow_0c7fd1d">
+        <di:waypoint x="560" y="277" />
+        <di:waypoint x="605" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ys22bd_di" bpmnElement="Flow_1ys22bd">
+        <di:waypoint x="2310" y="277" />
+        <di:waypoint x="2385" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_16brcbw_di" bpmnElement="Flow_16brcbw">
+        <di:waypoint x="1195" y="277" />
+        <di:waypoint x="2260" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0swendj_di" bpmnElement="Flow_0swendj">
+        <di:waypoint x="660" y="335" />
+        <di:waypoint x="660" y="810" />
+        <di:waypoint x="1120" y="810" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19swpaq_di" bpmnElement="Flow_19swpaq">
+        <di:waypoint x="1930" y="600" />
+        <di:waypoint x="2285" y="600" />
+        <di:waypoint x="2285" y="302" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1953" y="583" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15sq7x5_di" bpmnElement="Flow_15sq7x5">
+        <di:waypoint x="445" y="277" />
+        <di:waypoint x="510" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0om5gh4_di" bpmnElement="Flow_0om5gh4">
+        <di:waypoint x="990" y="277" />
+        <di:waypoint x="1095" y="277" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="993" y="243" width="34" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1x7dp3c_di" bpmnElement="Flow_1x7dp3c">
+        <di:waypoint x="705" y="277" />
+        <di:waypoint x="775" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1o3m8ov_di" bpmnElement="Flow_1o3m8ov">
+        <di:waypoint x="965" y="302" />
+        <di:waypoint x="965" y="560" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="978" y="311" width="33" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_06w02w5_di" bpmnElement="Flow_06w02w5">
+        <di:waypoint x="1445" y="170" />
+        <di:waypoint x="535" y="170" />
+        <di:waypoint x="535" y="252" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qfcmi5_di" bpmnElement="Flow_0qfcmi5">
+        <di:waypoint x="273" y="277" />
+        <di:waypoint x="345" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1b1b1tt_di" bpmnElement="Flow_1b1b1tt">
+        <di:waypoint x="875" y="277" />
+        <di:waypoint x="940" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0ycuir4_di" bpmnElement="Flow_0ycuir4">
+        <di:waypoint x="2660" y="277" />
+        <di:waypoint x="2730" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1xqwpft_di" bpmnElement="Flow_1xqwpft">
+        <di:waypoint x="2830" y="277" />
+        <di:waypoint x="2892" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1sub8ot_di" bpmnElement="Flow_1sub8ot">
+        <di:waypoint x="2485" y="277" />
+        <di:waypoint x="2560" y="277" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="237" y="259" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="216" y="302" width="79" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fvhj6y_di" bpmnElement="Activity_177jagk">
+        <dc:Bounds x="345" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1csjrdm_di" bpmnElement="Gateway_1csjrdm" isMarkerVisible="true">
+        <dc:Bounds x="940" y="252" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="938" y="215" width="53" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1xyafgy_di" bpmnElement="Activity_0vhdms0" bioc:stroke="#000000" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#000000">
+        <dc:Bounds x="605" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1cgv1dk_di" bpmnElement="Activity_0j1d4xg">
+        <dc:Bounds x="775" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_06zfuuy_di" bpmnElement="icsCreDistributionMergeCreAccpted" isMarkerVisible="true">
+        <dc:Bounds x="2260" y="252" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2250" y="222" width="73" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ovvq8e_di" bpmnElement="Activity_1u8evm1">
+        <dc:Bounds x="2385" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_013allu_di" bpmnElement="icsCreDistributionMergeVerifyCre" isMarkerVisible="true">
+        <dc:Bounds x="510" y="252" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="491" y="312" width="89" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jb6re0_di" bpmnElement="Activity_1rjgoyz" bioc:stroke="#000000" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#000000">
+        <dc:Bounds x="1095" y="560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1xz1qzw_di" bpmnElement="Gateway_1xz1qzw" isMarkerVisible="true">
+        <dc:Bounds x="1470" y="575" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1404" y="563" width="82" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0us94hm_di" bpmnElement="Activity_0us94hm">
+        <dc:Bounds x="915" y="560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0t5v9xp_di" bpmnElement="Activity_0f4nfl4">
+        <dc:Bounds x="1995" y="420" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0essku4_di" bpmnElement="Activity_0ymibwn">
+        <dc:Bounds x="1275" y="560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1eqe4mc_di" bpmnElement="Activity_0mir27b">
+        <dc:Bounds x="1715" y="560" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0jxgsb5_di" bpmnElement="icsCreDistributionEscalationResultAccepted" isMarkerVisible="true">
+        <dc:Bounds x="1880" y="575" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1879" y="635" width="51" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0e2wk7h_di" bpmnElement="icsCreDistributionCreNotApplicableStatus">
+        <dc:Bounds x="2167" y="442" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2160" y="485" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_08d0t0l_di" bpmnElement="icsCreDistributionRejectedCreMerge" isMarkerVisible="true">
+        <dc:Bounds x="1880" y="435" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1868" y="405" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0fmcnxi_di" bpmnElement="icsCreDistributionEscalationServiceTask">
+        <dc:Bounds x="1595" y="770" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1oxuh3u_di" bpmnElement="icsCreDistributionEscalationMerge" isMarkerVisible="true">
+        <dc:Bounds x="1120" y="785" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1103" y="842" width="85" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_08yxqs9_di" bpmnElement="icsCreDistributionManualEscalationMerge" isMarkerVisible="true">
+        <dc:Bounds x="1470" y="785" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1453" y="842" width="85" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1jvbt7l_di" bpmnElement="Activity_131fjgu">
+        <dc:Bounds x="1445" y="130" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1je3269_di" bpmnElement="Activity_1je3269">
+        <dc:Bounds x="1095" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0muc3jo_di" bpmnElement="boschUserTaskDefineControl" bioc:stroke="#000000" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#000000">
+        <dc:Bounds x="2560" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1y1ne1x_di" bpmnElement="Activity_0jlqmok">
+        <dc:Bounds x="2730" y="237" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0lfpnmo_di" bpmnElement="Event_0lfpnmo">
+        <dc:Bounds x="2892" y="259" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2869" y="302" width="82" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_06u2w86_di" bpmnElement="icsCreDistributionReceiveStopVerificationMessage" bioc:stroke="#e53935" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#e53935">
+        <dc:Bounds x="642" y="299" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="666" y="336" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1pocvon_di" bpmnElement="icsCreDistributionReceiveStopReviewMessage" bioc:stroke="#e53935" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#e53935">
+        <dc:Bounds x="1127" y="622" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1156" y="665" width="67" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

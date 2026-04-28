@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="definitions_6af291f0-ee9d-4996-aec4-c41b736794b9" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.29.0">
+  <process id="process_5b8a4d32-36ea-450e-8da0-c814bf284661" name="Form With Default Connection" isExecutable="true">
+    <extensionElements>
+      <camunda:properties>
+        <camunda:property name="role-admin" value="" />
+      </camunda:properties>
+    </extensionElements>
+    <exclusiveGateway id="BPMNShape_Gateway_1732802059620" name="" default="Flow_1732802224677">
+      <incoming>Flow_1732802216024</incoming>
+      <outgoing>Flow_1732802583765</outgoing>
+      <outgoing>Flow_1732802227513</outgoing>
+      <outgoing>Flow_1732802224677</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="BPMNShape_Gateway_1732802597272" name="">
+      <incoming>Flow_1732802602188</incoming>
+      <incoming>Flow_1732802608349</incoming>
+      <incoming>Flow_1732802605158</incoming>
+      <outgoing>Flow_1732802626228</outgoing>
+    </exclusiveGateway>
+    <endEvent id="BPMNShape_EndEvent_1732802620677" name="">
+      <incoming>Flow_1732802626228</incoming>
+    </endEvent>
+    <userTask id="BPMNShape_Task_1732802573014" name="Woman" camunda:formKey="">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="external-form-id" value="" />
+        </camunda:properties>
+        <camunda:formData />
+      </extensionElements>
+      <incoming>Flow_1732802583765</incoming>
+      <outgoing>Flow_1732802605158</outgoing>
+    </userTask>
+    <userTask id="BPMNShape_Task_1732802218051" name="Sex unspecified" camunda:formKey="">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="external-form-id" value="" />
+        </camunda:properties>
+        <camunda:formData />
+      </extensionElements>
+      <incoming>Flow_1732802224677</incoming>
+      <outgoing>Flow_1732802602188</outgoing>
+    </userTask>
+    <userTask id="BPMNShape_Task_1732802051440" name="What is your sex?" camunda:formKey="DefaultUserTaskPage">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="external-form-id" value="" />
+        </camunda:properties>
+        <camunda:formData>
+          <camunda:formField id="sex" label="Sex" type="enum">
+            <camunda:value id="Value_1732802477342" name="Man" />
+            <camunda:value id="Value_1732802482142" name="Woman" />
+          </camunda:formField>
+        </camunda:formData>
+      </extensionElements>
+      <incoming>Flow_1732802057568</incoming>
+      <outgoing>Flow_1732802216024</outgoing>
+    </userTask>
+    <userTask id="BPMNShape_Task_1732802220474" name="Man" camunda:formKey="">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="external-form-id" value="" />
+        </camunda:properties>
+        <camunda:formData />
+      </extensionElements>
+      <incoming>Flow_1732802227513</incoming>
+      <outgoing>Flow_1732802608349</outgoing>
+    </userTask>
+    <startEvent id="BPMNShape_StartEvent_1732802049265" name="">
+      <outgoing>Flow_1732802057568</outgoing>
+    </startEvent>
+    <sequenceFlow id="Flow_1732802626228" name="" sourceRef="BPMNShape_Gateway_1732802597272" targetRef="BPMNShape_EndEvent_1732802620677" />
+    <sequenceFlow id="Flow_1732802583765" name="woman" sourceRef="BPMNShape_Gateway_1732802059620" targetRef="BPMNShape_Task_1732802573014">
+      <conditionExpression id="conditionExpression_468c7844-d696-4875-83d1-f75c0fe67f1c">${sex=='Value_1732802482142'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_1732802227513" name="man" sourceRef="BPMNShape_Gateway_1732802059620" targetRef="BPMNShape_Task_1732802220474">
+      <conditionExpression id="conditionExpression_580b3134-0e4b-41e4-92c9-28311d9733da">${sex=='Value_1732802477342'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_1732802602188" name="" sourceRef="BPMNShape_Task_1732802218051" targetRef="BPMNShape_Gateway_1732802597272" />
+    <sequenceFlow id="Flow_1732802224677" name="sex unspecified" sourceRef="BPMNShape_Gateway_1732802059620" targetRef="BPMNShape_Task_1732802218051" />
+    <sequenceFlow id="Flow_1732802608349" name="" sourceRef="BPMNShape_Task_1732802220474" targetRef="BPMNShape_Gateway_1732802597272" />
+    <sequenceFlow id="Flow_1732802605158" name="" sourceRef="BPMNShape_Task_1732802573014" targetRef="BPMNShape_Gateway_1732802597272" />
+    <sequenceFlow id="Flow_1732802216024" name="" sourceRef="BPMNShape_Task_1732802051440" targetRef="BPMNShape_Gateway_1732802059620" />
+    <sequenceFlow id="Flow_1732802057568" name="" sourceRef="BPMNShape_StartEvent_1732802049265" targetRef="BPMNShape_Task_1732802051440" />
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_c8f5452c-1295-4e77-8a5e-51ed5e386a94">
+    <bpmndi:BPMNPlane id="BPMNPlane_0f9d8be6-0753-49b3-932c-718ee18bcb4f" bpmnElement="process_5b8a4d32-36ea-450e-8da0-c814bf284661">
+      <bpmndi:BPMNShape id="_BPMNShape_UserTask_0819706444382_di" bpmnElement="BPMNShape_Task_1732802573014">
+        <dc:Bounds x="850" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_UserTask_5214389120598_di" bpmnElement="BPMNShape_Task_1732802218051">
+        <dc:Bounds x="850" y="80" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_ExclusiveGateway_0579724715853_di" bpmnElement="BPMNShape_Gateway_1732802059620" isMarkerVisible="true">
+        <dc:Bounds x="545" y="225" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_UserTask_0363823535068_di" bpmnElement="BPMNShape_Task_1732802051440">
+        <dc:Bounds x="320" y="210" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_1660216276753_di" bpmnElement="BPMNShape_StartEvent_1732802049265">
+        <dc:Bounds x="152" y="232" width="35" height="35" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_UserTask_4889099775653_di" bpmnElement="BPMNShape_Task_1732802220474">
+        <dc:Bounds x="850" y="360" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_ExclusiveGateway_8200807208698_di" bpmnElement="BPMNShape_Gateway_1732802597272" isMarkerVisible="true">
+        <dc:Bounds x="1145" y="225" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_4258767153710_di" bpmnElement="BPMNShape_EndEvent_1732802620677">
+        <dc:Bounds x="1353" y="232" width="35" height="35" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_SequenceFlow_0586138438632_di" bpmnElement="Flow_1732802583765">
+        <di:waypoint x="595" y="250" />
+        <di:waypoint x="850" y="250" />
+        <bpmndi:BPMNLabel id="BPMNLabel_f55a87ab-e2fa-4557-9fcc-6c9cf25fff58">
+          <dc:Bounds x="654" y="222" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SequenceFlow_9476128132816_di" bpmnElement="Flow_1732802605158">
+        <di:waypoint x="950" y="251" />
+        <di:waypoint x="1146" y="251" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_DefaultFlow_9038906883342_di" bpmnElement="Flow_1732802224677">
+        <di:waypoint x="570" y="225" />
+        <di:waypoint x="570" y="120" />
+        <di:waypoint x="850" y="120" />
+        <bpmndi:BPMNLabel id="BPMNLabel_0511795f-4049-4d32-a184-c5b595155314">
+          <dc:Bounds x="677" y="93" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SequenceFlow_9681873739047_di" bpmnElement="Flow_1732802602188">
+        <di:waypoint x="950" y="120" />
+        <di:waypoint x="1170" y="120" />
+        <di:waypoint x="1170" y="225" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SequenceFlow_9989919256523_di" bpmnElement="Flow_1732802216024">
+        <di:waypoint x="420" y="250" />
+        <di:waypoint x="545" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SequenceFlow_0643351125470_di" bpmnElement="Flow_1732802227513">
+        <di:waypoint x="570" y="275" />
+        <di:waypoint x="570" y="399" />
+        <di:waypoint x="850" y="399" />
+        <bpmndi:BPMNLabel id="BPMNLabel_2f7ee798-2191-4fe5-8749-4679ccf783bb">
+          <dc:Bounds x="648" y="371" width="22" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SequenceFlow_3124001570483_di" bpmnElement="Flow_1732802057568">
+        <di:waypoint x="187" y="249" />
+        <di:waypoint x="254" y="249" />
+        <di:waypoint x="254" y="250" />
+        <di:waypoint x="320" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SequenceFlow_1083845365773_di" bpmnElement="Flow_1732802608349">
+        <di:waypoint x="950" y="400" />
+        <di:waypoint x="1170" y="400" />
+        <di:waypoint x="1170" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_SequenceFlow_9660721805607_di" bpmnElement="Flow_1732802626228">
+        <di:waypoint x="1195" y="250" />
+        <di:waypoint x="1274" y="250" />
+        <di:waypoint x="1274" y="249" />
+        <di:waypoint x="1353" y="249" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

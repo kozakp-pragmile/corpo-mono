@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="definitions_2fb157d2-2f10-4bf1-8c8a-eeb026fc9f6c" targetNamespace="http://bpmn.io/schema/bpmn" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL">
+  <process id="Process_2b8cbe5b_43b9_431e_ab0b_bc1cf8be6c98" isExecutable="true" name="GCRA Process V2">
+    <extensionElements>
+      <camunda:properties>
+        <camunda:property name="role-admin" value="propOrgAdmin"/>
+      </camunda:properties>
+    </extensionElements>
+    <serviceTask camunda:topic="Action;985708" camunda:type="external" id="BPMNShape_Task_1717154465520" name="Change Status">
+      <extensionElements/>
+      <incoming>Flow_1718355863762</incoming>
+      <outgoing>Flow_1718355865596</outgoing>
+    </serviceTask>
+    <startEvent id="BPMNShape_StartEvent_1715078879938" name="Start">
+      <outgoing>Flow_1716461815412</outgoing>
+    </startEvent>
+    <userTask camunda:formKey="985683" id="BPMNShape_Task_1715078884428" name="Execute">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="happy-path" value="Execute;1"/>
+          <camunda:property name="role-participant" value="PropTaskExecutor"/>
+          <camunda:property name="external-form-id" value=""/>
+        </camunda:properties>
+        <camunda:formData/>
+      </extensionElements>
+      <incoming>Flow_1717153090731</incoming>
+      <incoming>Flow_1715078884428</incoming>
+      <outgoing>Flow_1718355863762</outgoing>
+    </userTask>
+    <intermediateCatchEvent id="BPMNShape_StartEvent_1716460114337" name="Call Back">
+      <incoming>Flow_1716461828691</incoming>
+      <outgoing>Flow_1716463795788</outgoing>
+      <messageEventDefinition id="messageEventDefinition_be1a3244-3500-4f24-ab10-5dea77bf7a06" messageRef="Message_1715078917671"/>
+    </intermediateCatchEvent>
+    <endEvent id="BPMNShape_EndEvent_1717154400690" name="">
+      <incoming>Flow_1717154400690</incoming>
+      <terminateEventDefinition id="terminateEventDefinition_551c2301-1d2e-463f-9b60-fcef07f63e56"/>
+    </endEvent>
+    <parallelGateway id="BPMNShape_Gateway_1716461815412" name="">
+      <incoming>Flow_1716461815412</incoming>
+      <outgoing>Flow_1716461824117</outgoing>
+      <outgoing>Flow_1716461828691</outgoing>
+    </parallelGateway>
+    <serviceTask camunda:topic="Action;Complete Process" camunda:type="external" id="BPMNShape_Task_1717154399705" name="Complete Task">
+      <extensionElements/>
+      <incoming>Flow_1717154399705</incoming>
+      <outgoing>Flow_1717154400690</outgoing>
+    </serviceTask>
+    <exclusiveGateway id="BPMNShape_Gateway_1717153075908" name="Approval">
+      <incoming>Flow_1718355867154</incoming>
+      <outgoing>Flow_1717153090731</outgoing>
+      <outgoing>Flow_1717154399705</outgoing>
+    </exclusiveGateway>
+    <userTask camunda:formKey="985681" id="BPMNShape_Task_1717153073176" name="Review">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="happy-path" value="Review;2"/>
+          <camunda:property name="role-participant" value="propTaskReviewer"/>
+          <camunda:property name="external-form-id" value=""/>
+        </camunda:properties>
+        <camunda:formData>
+          <camunda:formField id="GCRAReview1" label="Review" type="enum">
+            <camunda:validation>
+              <camunda:constraint name="required"/>
+            </camunda:validation>
+            <camunda:value id="Value_1717153151471" name="Approve"/>
+            <camunda:value id="Value_1717153156230" name="Decline"/>
+          </camunda:formField>
+        </camunda:formData>
+      </extensionElements>
+      <incoming>Flow_1718355865596</incoming>
+      <outgoing>Flow_1718355867154</outgoing>
+    </userTask>
+    <serviceTask camunda:topic="Action;GCRAProcessSetStartInformation" camunda:type="external" id="BPMNShape_Task_1715078881540" name="Start Task">
+      <extensionElements/>
+      <incoming>Flow_1716461824117</incoming>
+      <outgoing>Flow_1715078884428</outgoing>
+    </serviceTask>
+    <serviceTask camunda:topic="Action;GCRAProcessSetEndInformation" camunda:type="external" id="BPMNShape_Task_1716463795788" name="Close Task">
+      <extensionElements/>
+      <incoming>Flow_1716463795788</incoming>
+      <outgoing>Flow_1716463796929</outgoing>
+    </serviceTask>
+    <endEvent id="BPMNShape_EndEvent_1716463796929" name="End">
+      <incoming>Flow_1716463796929</incoming>
+      <terminateEventDefinition id="terminateEventDefinition_e09b8c26-5dfc-486e-892e-cb58dc3f620f"/>
+    </endEvent>
+    <sequenceFlow id="Flow_1718355865596" name="" sourceRef="BPMNShape_Task_1717154465520" targetRef="BPMNShape_Task_1717153073176"/>
+    <sequenceFlow id="Flow_1716461824117" name="" sourceRef="BPMNShape_Gateway_1716461815412" targetRef="BPMNShape_Task_1715078881540"/>
+    <sequenceFlow id="Flow_1718355867154" name="" sourceRef="BPMNShape_Task_1717153073176" targetRef="BPMNShape_Gateway_1717153075908"/>
+    <sequenceFlow id="Flow_1717153090731" name="Decline" sourceRef="BPMNShape_Gateway_1717153075908" targetRef="BPMNShape_Task_1715078884428">
+      <conditionExpression id="conditionExpression_bf8a8a55-d053-429a-a033-59398bcbaed5">${GCRAReview1=='Value_1717153156230'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_1716461828691" name="" sourceRef="BPMNShape_Gateway_1716461815412" targetRef="BPMNShape_StartEvent_1716460114337"/>
+    <sequenceFlow id="Flow_1716461815412" name="" sourceRef="BPMNShape_StartEvent_1715078879938" targetRef="BPMNShape_Gateway_1716461815412"/>
+    <sequenceFlow id="Flow_1718355863762" name="" sourceRef="BPMNShape_Task_1715078884428" targetRef="BPMNShape_Task_1717154465520"/>
+    <sequenceFlow id="Flow_1716463795788" name="" sourceRef="BPMNShape_StartEvent_1716460114337" targetRef="BPMNShape_Task_1716463795788"/>
+    <sequenceFlow id="Flow_1716463796929" name="" sourceRef="BPMNShape_Task_1716463795788" targetRef="BPMNShape_EndEvent_1716463796929"/>
+    <sequenceFlow id="Flow_1717154399705" name="" sourceRef="BPMNShape_Gateway_1717153075908" targetRef="BPMNShape_Task_1717154399705">
+      <conditionExpression id="conditionExpression_02e45731-1296-4906-a10d-84dbdf8bbae7">${GCRAReview1=='Value_1717153151471'}</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="Flow_1717154400690" name="" sourceRef="BPMNShape_Task_1717154399705" targetRef="BPMNShape_EndEvent_1717154400690"/>
+    <sequenceFlow id="Flow_1715078884428" name="" sourceRef="BPMNShape_Task_1715078881540" targetRef="BPMNShape_Task_1715078884428"/>
+  </process>
+  <message id="Message_1715078917671" name="Terminate GCRA Process"/>
+  <message id="Message_1715676363285" name="StartGCRAProcess"/>
+  <collaboration id="collaboration_66005c31-fde7-44d1-85ee-0abb3d3fa8e3">
+    <participant id="BPMNShape_Lane_1715078860359_1715078888680" name="GCRA Process V2" processRef="Process_2b8cbe5b_43b9_431e_ab0b_bc1cf8be6c98"/>
+  </collaboration>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_30a646c5-147f-4bcf-95f9-0e4884c47ede">
+    <bpmndi:BPMNPlane bpmnElement="collaboration_66005c31-fde7-44d1-85ee-0abb3d3fa8e3" id="BPMNPlane_0fa64a79-ea8b-4174-8b5f-1b4728d3658c">
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_EndEvent_1716463796929" id="_BPMNShape_EndEvent_1094087475649_di">
+        <dc:Bounds height="35.0" width="35.0" x="822.5" y="362.5"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_ea06d2bf-3e8c-4fbc-b5fe-50e67ce92e40">
+          <dc:Bounds height="14.0" width="5.0" x="840.0" y="411.5"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Task_1717154465520" id="_BPMNShape_ServiceTask_6450933421392_di">
+        <dc:Bounds height="80.0" width="100.0" x="830.0" y="200.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_StartEvent_1715078879938" id="_BPMNShape_StartEvent_3842863166053_di">
+        <dc:Bounds height="35.0" width="35.0" x="222.5" y="312.5"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_91d5c26e-ddad-42fd-abc8-bacd0f5382c0">
+          <dc:Bounds height="14.0" width="5.0" x="240.0" y="361.5"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Lane_1715078860359_1715078888680" id="_BPMNShape_Participant_1482349022816_di">
+        <dc:Bounds height="411.0" width="1410.0" x="148.5" y="89.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Task_1715078884428" id="_BPMNShape_UserTask_7844009124735_di">
+        <dc:Bounds height="80.0" width="100.0" x="630.0" y="200.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_StartEvent_1716460114337" id="_BPMNShape_IntermediateCatchEvent_8178050079035_di">
+        <dc:Bounds height="35.0" width="35.0" x="492.5" y="362.5"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_ac203bb3-f802-4a6c-bc02-bf9290bfad45">
+          <dc:Bounds height="14.0" width="5.0" x="510.0" y="411.5"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_EndEvent_1717154400690" id="_BPMNShape_EndEvent_9255568718765_di">
+        <dc:Bounds height="35.0" width="35.0" x="1482.5" y="222.5"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Gateway_1716461815412" id="_BPMNShape_ParallelGateway_8724250810602_di">
+        <dc:Bounds height="50.0" width="50.0" x="335.0" y="305.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Task_1717154399705" id="_BPMNShape_ServiceTask_4744285112490_di">
+        <dc:Bounds height="80.0" width="100.0" x="1320.0" y="200.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Gateway_1717153075908" id="_BPMNShape_ExclusiveGateway_7408600098277_di">
+        <dc:Bounds height="50.0" width="50.0" x="1195.0" y="215.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_e35b785a-7bde-4d0e-a655-0c70c6d97daa">
+          <dc:Bounds height="14.0" width="5.0" x="1197.7954540252686" y="279.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Task_1717153073176" id="_BPMNShape_UserTask_4770902153678_di">
+        <dc:Bounds height="80.0" width="100.0" x="1010.0" y="200.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Task_1715078881540" id="_BPMNShape_ServiceTask_0274580968274_di">
+        <dc:Bounds height="80.0" width="100.0" x="460.0" y="200.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Task_1716463795788" id="_BPMNShape_ServiceTask_4952608793860_di">
+        <dc:Bounds height="80.0" width="100.0" x="630.0" y="340.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1717153090731" id="Flow_SequenceFlow_6732313256354_di">
+        <di:waypoint x="1220.0000610351562" y="215.00006103515625"/>
+        <di:waypoint x="1220.0000610351562" y="144.0"/>
+        <di:waypoint x="680.0" y="144.0"/>
+        <di:waypoint x="680.0" y="200.0"/>
+        <bpmndi:BPMNLabel id="BPMNLabel_c3891dc7-7568-43e0-adcd-9064620575c3">
+          <dc:Bounds height="14.0" width="0.0" x="977.5" y="116.0"/>
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1717154399705" id="Flow_SequenceFlow_0128268505814_di">
+        <di:waypoint x="1245.0" y="240.0"/>
+        <di:waypoint x="1320.0" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1716463795788" id="Flow_SequenceFlow_7476254957045_di">
+        <di:waypoint x="527.5" y="380.0"/>
+        <di:waypoint x="630.0" y="380.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1718355865596" id="Flow_SequenceFlow_4371514892960_di">
+        <di:waypoint x="930.0" y="240.0"/>
+        <di:waypoint x="1010.0" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1716463796929" id="Flow_SequenceFlow_3286361012163_di">
+        <di:waypoint x="730.0" y="380.0"/>
+        <di:waypoint x="822.5" y="380.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1717154400690" id="Flow_SequenceFlow_2057995020560_di">
+        <di:waypoint x="1420.0" y="240.0"/>
+        <di:waypoint x="1482.5" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1715078884428" id="Flow_SequenceFlow_1144027915486_di">
+        <di:waypoint x="560.0" y="240.0"/>
+        <di:waypoint x="630.0" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1716461824117" id="Flow_SequenceFlow_3537950085590_di">
+        <di:waypoint x="360.0" y="305.0"/>
+        <di:waypoint x="360.0" y="240.0"/>
+        <di:waypoint x="460.0" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1718355863762" id="Flow_SequenceFlow_5105794220298_di">
+        <di:waypoint x="730.0" y="240.0"/>
+        <di:waypoint x="830.0" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1716461828691" id="Flow_SequenceFlow_9194890891370_di">
+        <di:waypoint x="360.0" y="355.0"/>
+        <di:waypoint x="360.0" y="380.0"/>
+        <di:waypoint x="492.5" y="380.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1718355867154" id="Flow_SequenceFlow_9247425620929_di">
+        <di:waypoint x="1110.0" y="240.0"/>
+        <di:waypoint x="1195.0" y="240.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1716461815412" id="Flow_SequenceFlow_5818326726147_di">
+        <di:waypoint x="257.5" y="330.0"/>
+        <di:waypoint x="335.0" y="330.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1donz6e" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.12.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
+  <bpmn:collaboration id="Collaboration_05ag7rj">
+    <bpmn:extensionElements>
+      <camunda:properties>
+        <camunda:property name="happy-path" value="Notify Organization;3" />
+      </camunda:properties>
+    </bpmn:extensionElements>
+    <bpmn:participant id="Participant_0kn4wjk" processRef="Process_creDlm" />
+    <bpmn:participant id="Participant_07mieib" processRef="Process_creEdit" />
+    <bpmn:messageFlow id="Flow_1do7oqj" sourceRef="Event_1ujg9w1" targetRef="Event_1hdkt6a" />
+    <bpmn:messageFlow id="Flow_03rvj62" sourceRef="Event_0eehlk8" targetRef="Activity_ReceiveChangeCompleted" />
+  </bpmn:collaboration>
+  <bpmn:message id="Message_03xqg7g" name="startSubProcessDlmRboc" />
+  <bpmn:message id="Message_07vqjuk" name="endSubProcessDlmCreShadow" />
+  <bpmn:process id="Process_creDlm" name="DLM for Control Requirement" isExecutable="true">
+    <bpmn:sequenceFlow id="Flow_1sdktle" sourceRef="Event_startDlmProcess" targetRef="Activity_checkHistoryCopy" />
+    <bpmn:sequenceFlow id="Flow_0huka29" sourceRef="Activity_checkHistoryCopy" targetRef="Activity_0aedjbq" />
+    <bpmn:sequenceFlow id="Flow_1d9r0rd" sourceRef="Activity_endProcess" targetRef="Event_07w3g69" />
+    <bpmn:serviceTask id="Activity_checkHistoryCopy" name="Check historical and create copy" camunda:type="external" camunda:topic="extended;expressionGenerateTaskCreMirror">
+      <bpmn:incoming>Flow_1sdktle</bpmn:incoming>
+      <bpmn:outgoing>Flow_0huka29</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:startEvent id="Event_startDlmProcess" name="Start DLM Process">
+      <bpmn:outgoing>Flow_1sdktle</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:subProcess id="Activity_0aedjbq">
+      <bpmn:incoming>Flow_0huka29</bpmn:incoming>
+      <bpmn:outgoing>Flow_0pa3n1u</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="external_result" camunda:elementVariable="LOCAL_BUSINESS_KEY" />
+      <bpmn:sequenceFlow id="Flow_0b4dvnb" sourceRef="Activity_ReceiveChangeCompleted" targetRef="Event_0muyhea" />
+      <bpmn:sequenceFlow id="Flow_10j83ze" sourceRef="Event_1ujg9w1" targetRef="Activity_ReceiveChangeCompleted" />
+      <bpmn:sequenceFlow id="Flow_1tk43re" sourceRef="Event_17kyyp6" targetRef="Event_1ujg9w1" />
+      <bpmn:endEvent id="Event_0muyhea">
+        <bpmn:incoming>Flow_0b4dvnb</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:receiveTask id="Activity_ReceiveChangeCompleted" name="Receive changes" messageRef="Message_07vqjuk">
+        <bpmn:extensionElements>
+          <camunda:inputOutput>
+            <camunda:inputParameter name="LOCAL_BUSINESS_KEY">
+              <camunda:script scriptFormat="javascript">execution.getVariable('LOCAL_BUSINESS_KEY');</camunda:script>
+            </camunda:inputParameter>
+          </camunda:inputOutput>
+        </bpmn:extensionElements>
+        <bpmn:incoming>Flow_10j83ze</bpmn:incoming>
+        <bpmn:outgoing>Flow_0b4dvnb</bpmn:outgoing>
+      </bpmn:receiveTask>
+      <bpmn:intermediateThrowEvent id="Event_1ujg9w1">
+        <bpmn:incoming>Flow_1tk43re</bpmn:incoming>
+        <bpmn:outgoing>Flow_10j83ze</bpmn:outgoing>
+        <bpmn:messageEventDefinition id="MessageEventDefinition_07ss389" messageRef="Message_1qx17mb" camunda:class="com.corporater.bpm.engine.delegates.MessageThrowEventLocalBusinessKeyTransfer" />
+      </bpmn:intermediateThrowEvent>
+      <bpmn:startEvent id="Event_17kyyp6">
+        <bpmn:outgoing>Flow_1tk43re</bpmn:outgoing>
+      </bpmn:startEvent>
+    </bpmn:subProcess>
+    <bpmn:endEvent id="Event_07w3g69" name="End DLM &#10;Process">
+      <bpmn:incoming>Flow_1d9r0rd</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:serviceTask id="Activity_endProcess" name="End Process" camunda:expression="extended;expressionStopProcessDlmCre">
+      <bpmn:incoming>Flow_0pa3n1u</bpmn:incoming>
+      <bpmn:outgoing>Flow_1d9r0rd</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_0pa3n1u" sourceRef="Activity_0aedjbq" targetRef="Activity_endProcess" />
+  </bpmn:process>
+  <bpmn:process id="Process_creEdit" name="Edit CRE" isExecutable="true">
+    <bpmn:startEvent id="Event_1hdkt6a">
+      <bpmn:outgoing>Flow_12i7bwd</bpmn:outgoing>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_1sj6sh7" messageRef="Message_1qx17mb" />
+    </bpmn:startEvent>
+    <bpmn:endEvent id="Event_0eehlk8">
+      <bpmn:incoming>Flow_1rl89o8</bpmn:incoming>
+      <bpmn:messageEventDefinition id="MessageEventDefinition_12bzvuz" messageRef="Message_07vqjuk" camunda:class="com.corporater.bpm.engine.delegates.MessageThrowEventParentBusinessKeyCorrelation" />
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_12i7bwd" sourceRef="Event_1hdkt6a" targetRef="Activity_editCre" />
+    <bpmn:userTask id="Activity_editCre" name="Edit CRE" camunda:formKey="creEditCre">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="role-participant" value="propControlRequirementOwnerUserRef" />
+          <camunda:property name="role-admin" value="propProcessAdminGroup" />
+          <camunda:property name="happy-path" value="Edit CRE;1" />
+        </camunda:properties>
+        <camunda:formData>
+          <camunda:formField id="FormField_editCre" type="string" />
+        </camunda:formData>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_12i7bwd</bpmn:incoming>
+      <bpmn:outgoing>Flow_1ntdztj</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Activity_saveChanges" name="Save &#38; Notify Organzations" camunda:type="external" camunda:topic="extended;expressionSaveChangesNotifyOwner">
+      <bpmn:extensionElements>
+        <camunda:properties>
+          <camunda:property name="happy-path" value="Notify Organization;2" />
+        </camunda:properties>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_1ntdztj</bpmn:incoming>
+      <bpmn:outgoing>Flow_1rl89o8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:sequenceFlow id="Flow_1ntdztj" sourceRef="Activity_editCre" targetRef="Activity_saveChanges" />
+    <bpmn:sequenceFlow id="Flow_1rl89o8" sourceRef="Activity_saveChanges" targetRef="Event_0eehlk8" />
+  </bpmn:process>
+  <bpmn:message id="Message_1qx17mb" name="startSubProcessDlmCreShadow" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_05ag7rj">
+      <bpmndi:BPMNShape id="Participant_0kn4wjk_di" bpmnElement="Participant_0kn4wjk" isHorizontal="true">
+        <dc:Bounds x="140" y="80" width="2130" height="760" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1d9r0rd_di" bpmnElement="Flow_1d9r0rd">
+        <di:waypoint x="1790" y="490" />
+        <di:waypoint x="1992" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0huka29_di" bpmnElement="Flow_0huka29">
+        <di:waypoint x="550" y="490" />
+        <di:waypoint x="700" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1sdktle_di" bpmnElement="Flow_1sdktle">
+        <di:waypoint x="278" y="490" />
+        <di:waypoint x="450" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0pa3n1u_di" bpmnElement="Flow_0pa3n1u">
+        <di:waypoint x="1480" y="490" />
+        <di:waypoint x="1690" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Activity_0oduuh0_di" bpmnElement="Activity_endProcess">
+        <dc:Bounds x="1690" y="450" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_07w3g69_di" bpmnElement="Event_07w3g69">
+        <dc:Bounds x="1992" y="472" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1988" y="515" width="46" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0aedjbq_di" bpmnElement="Activity_0aedjbq" isExpanded="true">
+        <dc:Bounds x="700" y="340" width="780" height="300" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1tk43re_di" bpmnElement="Flow_1tk43re">
+        <di:waypoint x="826" y="490" />
+        <di:waypoint x="942" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10j83ze_di" bpmnElement="Flow_10j83ze">
+        <di:waypoint x="978" y="490" />
+        <di:waypoint x="1100" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0b4dvnb_di" bpmnElement="Flow_0b4dvnb">
+        <di:waypoint x="1200" y="490" />
+        <di:waypoint x="1342" y="490" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_0muyhea_di" bpmnElement="Event_0muyhea">
+        <dc:Bounds x="1342" y="472" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0l0yu3n_di" bpmnElement="Activity_ReceiveChangeCompleted">
+        <dc:Bounds x="1100" y="460" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1w7gwrc_di" bpmnElement="Event_1ujg9w1">
+        <dc:Bounds x="942" y="472" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_17kyyp6_di" bpmnElement="Event_17kyyp6">
+        <dc:Bounds x="790" y="472" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0tmwz9q_di" bpmnElement="Event_startDlmProcess">
+        <dc:Bounds x="242" y="472" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="236" y="515" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_11q6k2j_di" bpmnElement="Activity_checkHistoryCopy">
+        <dc:Bounds x="450" y="450" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_07mieib_di" bpmnElement="Participant_07mieib" isHorizontal="true">
+        <dc:Bounds x="560" y="1050" width="970" height="590" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1rl89o8_di" bpmnElement="Flow_1rl89o8">
+        <di:waypoint x="1240" y="1360" />
+        <di:waypoint x="1372" y="1360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ntdztj_di" bpmnElement="Flow_1ntdztj">
+        <di:waypoint x="990" y="1360" />
+        <di:waypoint x="1140" y="1360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12i7bwd_di" bpmnElement="Flow_12i7bwd">
+        <di:waypoint x="728" y="1360" />
+        <di:waypoint x="890" y="1360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1p899ls_di" bpmnElement="Event_1hdkt6a">
+        <dc:Bounds x="692" y="1342" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_08ifexd_di" bpmnElement="Event_0eehlk8">
+        <dc:Bounds x="1372" y="1342" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_04zbg4q_di" bpmnElement="Activity_editCre">
+        <dc:Bounds x="890" y="1320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1gkcept_di" bpmnElement="Activity_saveChanges">
+        <dc:Bounds x="1140" y="1320" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_1do7oqj_di" bpmnElement="Flow_1do7oqj">
+        <di:waypoint x="960" y="508" />
+        <di:waypoint x="960" y="945" />
+        <di:waypoint x="710" y="945" />
+        <di:waypoint x="710" y="1342" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03rvj62_di" bpmnElement="Flow_03rvj62">
+        <di:waypoint x="1390" y="1342" />
+        <di:waypoint x="1390" y="940" />
+        <di:waypoint x="1150" y="940" />
+        <di:waypoint x="1150" y="540" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

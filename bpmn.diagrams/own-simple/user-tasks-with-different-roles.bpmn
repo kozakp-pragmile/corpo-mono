@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" id="definitions_03d219c3-35b1-40f8-93d5-2b26c2126a9b" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.31.0">
+  <process id="Process_83b9cadd_6336_4f8e_9f16_f472d834acaf" name="User Tasks with Different Roles" isExecutable="true">
+    <extensionElements>
+      <camunda:properties>
+        <camunda:property name="role-admin" value="myAdmin" />
+      </camunda:properties>
+    </extensionElements>
+    <userTask id="BPMNShape_Task_1686845719254" name="Task 3 (My User, Group And Role)" camunda:formKey="task3Form">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="role-participant" value="myUserGroupAndRole" />
+        </camunda:properties>
+      </extensionElements>
+      <incoming>Flow_0qpbbgj</incoming>
+      <outgoing>Flow_1q1cvpf</outgoing>
+    </userTask>
+    <userTask id="BPMNShape_Task_1686845695533" name="Task 1 (My Participant)" camunda:formKey="task1Form" camunda:dueDate="2030-12-31T12:00:00.000Z">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="role-participant" value="myParticipant" />
+        </camunda:properties>
+      </extensionElements>
+      <incoming>Flow_17ra5i4</incoming>
+      <outgoing>Flow_1lixloj</outgoing>
+    </userTask>
+    <endEvent id="BPMNShape_EndEvent_1686845723737" name="">
+      <incoming>Flow_05hutwu</incoming>
+    </endEvent>
+    <startEvent id="BPMNShape_StartEvent_1686845694123" name="">
+      <outgoing>Flow_1686845716766</outgoing>
+    </startEvent>
+    <userTask id="BPMNShape_Task_1686845713134" name="Task 2 (My User / My Group)" camunda:formKey="task2Form">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="role-participant" value="myUser" />
+          <camunda:property name="role-participant" value="myGroup" />
+        </camunda:properties>
+      </extensionElements>
+      <incoming>Flow_18xdbov</incoming>
+      <outgoing>Flow_1aexb2p</outgoing>
+    </userTask>
+    <sequenceFlow id="Flow_1686845716766" name="" sourceRef="BPMNShape_StartEvent_1686845694123" targetRef="Gateway_0p1shpn" />
+    <sequenceFlow id="Flow_17ra5i4" sourceRef="Gateway_0p1shpn" targetRef="BPMNShape_Task_1686845695533" />
+    <sequenceFlow id="Flow_18xdbov" sourceRef="Gateway_0p1shpn" targetRef="BPMNShape_Task_1686845713134" />
+    <sequenceFlow id="Flow_0qpbbgj" sourceRef="Gateway_0p1shpn" targetRef="BPMNShape_Task_1686845719254" />
+    <sequenceFlow id="Flow_1lixloj" sourceRef="BPMNShape_Task_1686845695533" targetRef="Gateway_1nf6nv3" />
+    <sequenceFlow id="Flow_1aexb2p" sourceRef="BPMNShape_Task_1686845713134" targetRef="Gateway_1nf6nv3" />
+    <sequenceFlow id="Flow_1q1cvpf" sourceRef="BPMNShape_Task_1686845719254" targetRef="Gateway_1nf6nv3" />
+    <sequenceFlow id="Flow_05hutwu" sourceRef="Gateway_1nf6nv3" targetRef="BPMNShape_EndEvent_1686845723737" />
+    <parallelGateway id="Gateway_0p1shpn">
+      <incoming>Flow_1686845716766</incoming>
+      <outgoing>Flow_17ra5i4</outgoing>
+      <outgoing>Flow_18xdbov</outgoing>
+      <outgoing>Flow_0qpbbgj</outgoing>
+    </parallelGateway>
+    <parallelGateway id="Gateway_1nf6nv3">
+      <incoming>Flow_1lixloj</incoming>
+      <incoming>Flow_1aexb2p</incoming>
+      <incoming>Flow_1q1cvpf</incoming>
+      <outgoing>Flow_05hutwu</outgoing>
+    </parallelGateway>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_e5219728-b023-4188-89a1-4cadbfac1ebb">
+    <bpmndi:BPMNPlane id="BPMNPlane_e54d5e1e-d02f-4289-a77e-f8dba78a9d02" bpmnElement="Process_83b9cadd_6336_4f8e_9f16_f472d834acaf">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_8458881994970_di" bpmnElement="BPMNShape_StartEvent_1686845694123">
+        <dc:Bounds x="172" y="282" width="35" height="35" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_UserTask_1198026336392_di" bpmnElement="BPMNShape_Task_1686845695533">
+        <dc:Bounds x="540" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_UserTask_5952157153739_di" bpmnElement="BPMNShape_Task_1686845713134">
+        <dc:Bounds x="540" y="260" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_UserTask_0018076830620_di" bpmnElement="BPMNShape_Task_1686845719254">
+        <dc:Bounds x="540" y="440" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_EndEvent_7793202630829_di" bpmnElement="BPMNShape_EndEvent_1686845723737">
+        <dc:Bounds x="1030" y="282" width="35" height="35" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1o9ipdj_di" bpmnElement="Gateway_0p1shpn">
+        <dc:Bounds x="365" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_1l9wbbp_di" bpmnElement="Gateway_1nf6nv3">
+        <dc:Bounds x="765" y="275" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_SequenceFlow_3138025359693_di" bpmnElement="Flow_1686845716766">
+        <di:waypoint x="207" y="300" />
+        <di:waypoint x="365" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17ra5i4_di" bpmnElement="Flow_17ra5i4">
+        <di:waypoint x="390" y="275" />
+        <di:waypoint x="390" y="120" />
+        <di:waypoint x="540" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18xdbov_di" bpmnElement="Flow_18xdbov">
+        <di:waypoint x="415" y="300" />
+        <di:waypoint x="540" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0qpbbgj_di" bpmnElement="Flow_0qpbbgj">
+        <di:waypoint x="390" y="325" />
+        <di:waypoint x="390" y="480" />
+        <di:waypoint x="540" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1lixloj_di" bpmnElement="Flow_1lixloj">
+        <di:waypoint x="640" y="120" />
+        <di:waypoint x="790" y="120" />
+        <di:waypoint x="790" y="275" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1aexb2p_di" bpmnElement="Flow_1aexb2p">
+        <di:waypoint x="640" y="300" />
+        <di:waypoint x="765" y="300" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1q1cvpf_di" bpmnElement="Flow_1q1cvpf">
+        <di:waypoint x="640" y="480" />
+        <di:waypoint x="790" y="480" />
+        <di:waypoint x="790" y="325" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05hutwu_di" bpmnElement="Flow_05hutwu">
+        <di:waypoint x="815" y="300" />
+        <di:waypoint x="1030" y="300" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

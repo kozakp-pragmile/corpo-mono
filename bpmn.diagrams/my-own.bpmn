@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<definitions xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="definitions_ee5c4351-c4b4-4a73-8ef2-0983382882d6" targetNamespace="http://bpmn.io/schema/bpmn" xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL">
+  <process id="Process_37e2c66e_e8bf_4d29_a83f_eb4d9bb6d2af" isExecutable="true" name="my-own">
+    <extensionElements>
+      <camunda:properties>
+        <camunda:property name="role-admin" value=""/>
+      </camunda:properties>
+    </extensionElements>
+    <userTask camunda:formKey="" id="BPMNShape_Task_1731406590464" name="Task 1">
+      <extensionElements>
+        <camunda:properties>
+          <camunda:property name="role-participant" value="myParticipant"/>
+          <camunda:property name="role-participant" value="myGroup"/>
+          <camunda:property name="role-participant" value="myUser"/>
+        </camunda:properties>
+        <camunda:formData/>
+      </extensionElements>
+      <incoming>Flow_1731406621827</incoming>
+      <outgoing>Flow_1731406623895</outgoing>
+    </userTask>
+    <endEvent id="BPMNShape_EndEvent_1731406615501" name="">
+      <incoming>Flow_1731406623895</incoming>
+    </endEvent>
+    <startEvent id="BPMNShape_StartEvent_1731406607690" name="">
+      <outgoing>Flow_1731406621827</outgoing>
+    </startEvent>
+    <sequenceFlow id="Flow_1731406623895" name="" sourceRef="BPMNShape_Task_1731406590464" targetRef="BPMNShape_EndEvent_1731406615501"/>
+    <sequenceFlow id="Flow_1731406621827" name="" sourceRef="BPMNShape_StartEvent_1731406607690" targetRef="BPMNShape_Task_1731406590464"/>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_dff1c3ab-946f-4d2d-84f3-acb7c62c24e1">
+    <bpmndi:BPMNPlane bpmnElement="Process_37e2c66e_e8bf_4d29_a83f_eb4d9bb6d2af" id="BPMNPlane_ccedeb4a-a8f3-4d2e-ad32-e05337b386b9">
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_Task_1731406590464" id="_BPMNShape_UserTask_8458602085148_di">
+        <dc:Bounds height="80.0" width="100.0" x="550.0" y="120.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_EndEvent_1731406615501" id="_BPMNShape_EndEvent_5785178007289_di">
+        <dc:Bounds height="35.0" width="35.0" x="822.5" y="142.5"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="BPMNShape_StartEvent_1731406607690" id="_BPMNShape_StartEvent_3209944229453_di">
+        <dc:Bounds height="35.0" width="35.0" x="322.5" y="142.5"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1731406623895" id="Flow_SequenceFlow_9284612456815_di">
+        <di:waypoint x="650.0" y="160.0"/>
+        <di:waypoint x="822.5" y="160.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="Flow_1731406621827" id="Flow_SequenceFlow_4165363513659_di">
+        <di:waypoint x="357.5" y="160.0"/>
+        <di:waypoint x="550.0" y="160.0"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

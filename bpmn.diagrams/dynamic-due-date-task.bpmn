@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0ph0llu" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.29.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.21.0">
+  <bpmn:process id="Process_1c9yirz" name="Dynamic Due Date Process" isExecutable="true">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_0x782n4</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_0x782n4" sourceRef="StartEvent_1" targetRef="Gateway_0bmdyi0" />
+    <bpmn:endEvent id="Event_0x7o055">
+      <bpmn:incoming>Flow_0i8frze</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:userTask id="Activity_0lpqmtx" name="Dynamic Due Date Task - now" camunda:dueDate="${now()}">
+      <bpmn:incoming>Flow_1gvl47x</bpmn:incoming>
+      <bpmn:outgoing>Flow_12hnky0</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:parallelGateway id="Gateway_0bmdyi0">
+      <bpmn:incoming>Flow_0x782n4</bpmn:incoming>
+      <bpmn:outgoing>Flow_1gvl47x</bpmn:outgoing>
+      <bpmn:outgoing>Flow_0jnopf0</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1fgqmb1</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1ld7tvl</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11ygckt</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1wxej8s</bpmn:outgoing>
+      <bpmn:outgoing>Flow_04ces2d</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1wo6ov0</bpmn:outgoing>
+      <bpmn:outgoing>Flow_116q8ff</bpmn:outgoing>
+      <bpmn:outgoing>Flow_14jbnwo</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1hj1k5f</bpmn:outgoing>
+      <bpmn:outgoing>Flow_10n7pkk</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:parallelGateway id="Gateway_0kllbku">
+      <bpmn:incoming>Flow_12hnky0</bpmn:incoming>
+      <bpmn:incoming>Flow_1k5fhwx</bpmn:incoming>
+      <bpmn:incoming>Flow_19sakaa</bpmn:incoming>
+      <bpmn:incoming>Flow_15df7kv</bpmn:incoming>
+      <bpmn:incoming>Flow_1qtc0we</bpmn:incoming>
+      <bpmn:incoming>Flow_1nh65x0</bpmn:incoming>
+      <bpmn:incoming>Flow_1kgm9ui</bpmn:incoming>
+      <bpmn:incoming>Flow_1mcuo8u</bpmn:incoming>
+      <bpmn:incoming>Flow_1vma9hw</bpmn:incoming>
+      <bpmn:incoming>Flow_1qsc9lt</bpmn:incoming>
+      <bpmn:incoming>Flow_0kcru2c</bpmn:incoming>
+      <bpmn:incoming>Flow_18w0n3y</bpmn:incoming>
+      <bpmn:outgoing>Flow_0i8frze</bpmn:outgoing>
+    </bpmn:parallelGateway>
+    <bpmn:sequenceFlow id="Flow_0i8frze" sourceRef="Gateway_0kllbku" targetRef="Event_0x7o055" />
+    <bpmn:sequenceFlow id="Flow_1gvl47x" sourceRef="Gateway_0bmdyi0" targetRef="Activity_0lpqmtx" />
+    <bpmn:sequenceFlow id="Flow_12hnky0" sourceRef="Activity_0lpqmtx" targetRef="Gateway_0kllbku" />
+    <bpmn:sequenceFlow id="Flow_0jnopf0" sourceRef="Gateway_0bmdyi0" targetRef="Activity_0s4e4hv" />
+    <bpmn:sequenceFlow id="Flow_1k5fhwx" sourceRef="Activity_0s4e4hv" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_0s4e4hv" name="Dynamic Due Date Task - now + 2 days" camunda:dueDate="${dateTime().plusDays(2).toDate()}">
+      <bpmn:incoming>Flow_0jnopf0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1k5fhwx</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1fgqmb1" sourceRef="Gateway_0bmdyi0" targetRef="Activity_13ding2" />
+    <bpmn:sequenceFlow id="Flow_1ld7tvl" sourceRef="Gateway_0bmdyi0" targetRef="Activity_0br7nla" />
+    <bpmn:sequenceFlow id="Flow_19sakaa" sourceRef="Activity_13ding2" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_0br7nla" name="Static Due Date Task" camunda:dueDate="2031-01-31T12:56:23">
+      <bpmn:incoming>Flow_1ld7tvl</bpmn:incoming>
+      <bpmn:outgoing>Flow_1nqk3q6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_13ding2" name="No Due Date Task">
+      <bpmn:incoming>Flow_1fgqmb1</bpmn:incoming>
+      <bpmn:outgoing>Flow_19sakaa</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Activity_0svz8t2" name="Dynamic Ref Due Date Task - expiryDate" camunda:dueDate="${dateProps[&#39;expiryDate&#39;]}">
+      <bpmn:incoming>Flow_11ygckt</bpmn:incoming>
+      <bpmn:outgoing>Flow_15df7kv</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_11ygckt" sourceRef="Gateway_0bmdyi0" targetRef="Activity_0svz8t2" />
+    <bpmn:sequenceFlow id="Flow_15df7kv" sourceRef="Activity_0svz8t2" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_14ah0ga" name="Dynamic Ref Due Date Task - followUpDate" camunda:dueDate="${dateProps[&#39;followUpDate&#39;]}">
+      <bpmn:incoming>Flow_1nqk3q6</bpmn:incoming>
+      <bpmn:outgoing>Flow_1qtc0we</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1nqk3q6" sourceRef="Activity_0br7nla" targetRef="Activity_14ah0ga" />
+    <bpmn:sequenceFlow id="Flow_1qtc0we" sourceRef="Activity_14ah0ga" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_000f5gg" name="Dynamic Ref Due Date Task - dueDateCalculated" camunda:dueDate="${dateProps[&#39;dueDateCalculated&#39;]}">
+      <bpmn:incoming>Flow_1wxej8s</bpmn:incoming>
+      <bpmn:outgoing>Flow_1nh65x0</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1wxej8s" sourceRef="Gateway_0bmdyi0" targetRef="Activity_000f5gg" />
+    <bpmn:sequenceFlow id="Flow_1nh65x0" sourceRef="Activity_000f5gg" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_1xmf4p6" name="Dynamic Ref Due Date Task - dueDate with number id" camunda:dueDate="${dateProps[&#39;2147483647&#39;]}">
+      <bpmn:incoming>Flow_04ces2d</bpmn:incoming>
+      <bpmn:outgoing>Flow_1kgm9ui</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_04ces2d" sourceRef="Gateway_0bmdyi0" targetRef="Activity_1xmf4p6" />
+    <bpmn:sequenceFlow id="Flow_1kgm9ui" sourceRef="Activity_1xmf4p6" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_05j8u84" name="Dynamic Ref Due Date Task - beginningOfPeriodCalculated" camunda:dueDate="${dateProps[&#39;beginningOfPeriodCalculated&#39;]}">
+      <bpmn:incoming>Flow_1wo6ov0</bpmn:incoming>
+      <bpmn:outgoing>Flow_1mcuo8u</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1wo6ov0" sourceRef="Gateway_0bmdyi0" targetRef="Activity_05j8u84" />
+    <bpmn:sequenceFlow id="Flow_1mcuo8u" sourceRef="Activity_05j8u84" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_1yt04fn" name="Dynamic Ref Due Date Task - endOfMonthCalculated" camunda:dueDate="${dateProps[&#39;endOfMonthCalculated&#39;]}">
+      <bpmn:incoming>Flow_116q8ff</bpmn:incoming>
+      <bpmn:outgoing>Flow_1vma9hw</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_116q8ff" sourceRef="Gateway_0bmdyi0" targetRef="Activity_1yt04fn" />
+    <bpmn:sequenceFlow id="Flow_1vma9hw" sourceRef="Activity_1yt04fn" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_0fok4xj" name="Dynamic Ref Due Date Task - endOfYearCalculated" camunda:dueDate="${dateProps[&#39;endOfYearCalculated&#39;]}">
+      <bpmn:incoming>Flow_14jbnwo</bpmn:incoming>
+      <bpmn:outgoing>Flow_1qsc9lt</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_14jbnwo" sourceRef="Gateway_0bmdyi0" targetRef="Activity_0fok4xj" />
+    <bpmn:sequenceFlow id="Flow_1qsc9lt" sourceRef="Activity_0fok4xj" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_18sjv37" name="Dynamic Ref Due Date Task - beggingOfYearCalculated" camunda:dueDate="${dateProps[&#39;beginningOfYearCalculated&#39;]}">
+      <bpmn:incoming>Flow_1hj1k5f</bpmn:incoming>
+      <bpmn:outgoing>Flow_0kcru2c</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_1hj1k5f" sourceRef="Gateway_0bmdyi0" targetRef="Activity_18sjv37" />
+    <bpmn:sequenceFlow id="Flow_0kcru2c" sourceRef="Activity_18sjv37" targetRef="Gateway_0kllbku" />
+    <bpmn:userTask id="Activity_05w8u47" name="Dynamic Ref Due Date Task - endOfPeriodCalculated" camunda:dueDate="${dateProps[&#39;endOfPeriodCalculated&#39;]}">
+      <bpmn:incoming>Flow_10n7pkk</bpmn:incoming>
+      <bpmn:outgoing>Flow_18w0n3y</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_10n7pkk" sourceRef="Gateway_0bmdyi0" targetRef="Activity_05w8u47" />
+    <bpmn:sequenceFlow id="Flow_18w0n3y" sourceRef="Activity_05w8u47" targetRef="Gateway_0kllbku" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1c9yirz">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="142" y="402" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0x7o055_di" bpmnElement="Event_0x7o055">
+        <dc:Bounds x="882" y="402" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0ya0hk4_di" bpmnElement="Activity_0lpqmtx">
+        <dc:Bounds x="510" y="80" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_0wbang7_di" bpmnElement="Gateway_0bmdyi0">
+        <dc:Bounds x="365" y="395" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_19t9xxu_di" bpmnElement="Gateway_0kllbku">
+        <dc:Bounds x="765" y="395" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0vw7xna_di" bpmnElement="Activity_0s4e4hv">
+        <dc:Bounds x="510" y="180" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1z0elsg_di" bpmnElement="Activity_0br7nla">
+        <dc:Bounds x="460" y="380" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_04oxkqq_di" bpmnElement="Activity_13ding2">
+        <dc:Bounds x="510" y="280" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1qrpbt1" bpmnElement="Activity_0svz8t2">
+        <dc:Bounds x="510" y="480" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0v13bf5" bpmnElement="Activity_14ah0ga">
+        <dc:Bounds x="630" y="380" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0k5mmbl" bpmnElement="Activity_000f5gg">
+        <dc:Bounds x="510" y="680" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_05g7l0s" bpmnElement="Activity_1xmf4p6">
+        <dc:Bounds x="510" y="570" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1g7gvjg" bpmnElement="Activity_05j8u84">
+        <dc:Bounds x="510" y="800" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1s8zgqp" bpmnElement="Activity_1yt04fn">
+        <dc:Bounds x="510" y="910" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0d80d8g" bpmnElement="Activity_0fok4xj">
+        <dc:Bounds x="510" y="1020" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0qlnwgq" bpmnElement="Activity_18sjv37">
+        <dc:Bounds x="510" y="1150" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_02cog8g" bpmnElement="Activity_05w8u47">
+        <dc:Bounds x="510" y="1280" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0x782n4_di" bpmnElement="Flow_0x782n4">
+        <di:waypoint x="178" y="420" />
+        <di:waypoint x="365" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0i8frze_di" bpmnElement="Flow_0i8frze">
+        <di:waypoint x="815" y="420" />
+        <di:waypoint x="882" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1gvl47x_di" bpmnElement="Flow_1gvl47x">
+        <di:waypoint x="390" y="395" />
+        <di:waypoint x="390" y="120" />
+        <di:waypoint x="510" y="120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12hnky0_di" bpmnElement="Flow_12hnky0">
+        <di:waypoint x="610" y="120" />
+        <di:waypoint x="790" y="120" />
+        <di:waypoint x="790" y="395" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jnopf0_di" bpmnElement="Flow_0jnopf0">
+        <di:waypoint x="390" y="395" />
+        <di:waypoint x="390" y="220" />
+        <di:waypoint x="510" y="220" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1k5fhwx_di" bpmnElement="Flow_1k5fhwx">
+        <di:waypoint x="610" y="220" />
+        <di:waypoint x="790" y="220" />
+        <di:waypoint x="790" y="395" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1fgqmb1_di" bpmnElement="Flow_1fgqmb1">
+        <di:waypoint x="390" y="395" />
+        <di:waypoint x="390" y="320" />
+        <di:waypoint x="510" y="320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ld7tvl_di" bpmnElement="Flow_1ld7tvl">
+        <di:waypoint x="415" y="420" />
+        <di:waypoint x="460" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_19sakaa_di" bpmnElement="Flow_19sakaa">
+        <di:waypoint x="610" y="320" />
+        <di:waypoint x="790" y="320" />
+        <di:waypoint x="790" y="395" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_11ygckt_di" bpmnElement="Flow_11ygckt">
+        <di:waypoint x="390" y="445" />
+        <di:waypoint x="390" y="520" />
+        <di:waypoint x="510" y="520" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_15df7kv_di" bpmnElement="Flow_15df7kv">
+        <di:waypoint x="610" y="520" />
+        <di:waypoint x="790" y="520" />
+        <di:waypoint x="790" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nqk3q6_di" bpmnElement="Flow_1nqk3q6">
+        <di:waypoint x="560" y="420" />
+        <di:waypoint x="630" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qtc0we_di" bpmnElement="Flow_1qtc0we">
+        <di:waypoint x="730" y="420" />
+        <di:waypoint x="765" y="420" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wxej8s_di" bpmnElement="Flow_1wxej8s">
+        <di:waypoint x="390" y="445" />
+        <di:waypoint x="390" y="720" />
+        <di:waypoint x="510" y="720" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1nh65x0_di" bpmnElement="Flow_1nh65x0">
+        <di:waypoint x="610" y="720" />
+        <di:waypoint x="790" y="720" />
+        <di:waypoint x="790" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_04ces2d_di" bpmnElement="Flow_04ces2d">
+        <di:waypoint x="390" y="445" />
+        <di:waypoint x="390" y="610" />
+        <di:waypoint x="510" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1kgm9ui_di" bpmnElement="Flow_1kgm9ui">
+        <di:waypoint x="610" y="610" />
+        <di:waypoint x="790" y="610" />
+        <di:waypoint x="790" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1wo6ov0_di" bpmnElement="Flow_1wo6ov0">
+        <di:waypoint x="390" y="445" />
+        <di:waypoint x="390" y="840" />
+        <di:waypoint x="510" y="840" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1mcuo8u_di" bpmnElement="Flow_1mcuo8u">
+        <di:waypoint x="610" y="840" />
+        <di:waypoint x="790" y="840" />
+        <di:waypoint x="790" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_116q8ff_di" bpmnElement="Flow_116q8ff">
+        <di:waypoint x="390" y="445" />
+        <di:waypoint x="390" y="950" />
+        <di:waypoint x="510" y="950" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1vma9hw_di" bpmnElement="Flow_1vma9hw">
+        <di:waypoint x="610" y="950" />
+        <di:waypoint x="790" y="950" />
+        <di:waypoint x="790" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_14jbnwo_di" bpmnElement="Flow_14jbnwo">
+        <di:waypoint x="390" y="445" />
+        <di:waypoint x="390" y="1060" />
+        <di:waypoint x="510" y="1060" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1qsc9lt_di" bpmnElement="Flow_1qsc9lt">
+        <di:waypoint x="610" y="1060" />
+        <di:waypoint x="790" y="1060" />
+        <di:waypoint x="790" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1hj1k5f_di" bpmnElement="Flow_1hj1k5f">
+        <di:waypoint x="390" y="445" />
+        <di:waypoint x="390" y="1190" />
+        <di:waypoint x="510" y="1190" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0kcru2c_di" bpmnElement="Flow_0kcru2c">
+        <di:waypoint x="610" y="1190" />
+        <di:waypoint x="790" y="1190" />
+        <di:waypoint x="790" y="445" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10n7pkk_di" bpmnElement="Flow_10n7pkk">
+        <di:waypoint x="390" y="445" />
+        <di:waypoint x="390" y="1320" />
+        <di:waypoint x="510" y="1320" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_18w0n3y_di" bpmnElement="Flow_18w0n3y">
+        <di:waypoint x="610" y="1320" />
+        <di:waypoint x="790" y="1320" />
+        <di:waypoint x="790" y="445" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>

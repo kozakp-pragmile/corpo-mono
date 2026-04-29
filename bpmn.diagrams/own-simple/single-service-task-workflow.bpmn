@@ -14,7 +14,7 @@
       <bpmn:incoming>Flow_0wsvibo</bpmn:incoming>
     </bpmn:endEvent>
     <bpmn:sequenceFlow id="Flow_0wsvibo" sourceRef="Activity_0jgk8ix" targetRef="Event_0jgohrl" />
-    <bpmn:serviceTask id="Activity_0jgk8ix" name="Append 1 to name By Workflow" camunda:type="external" camunda:topic="Action;append-1">
+    <bpmn:serviceTask id="Activity_0jgk8ix" name="Append 1 to name By Workflow" camunda:type="external" camunda:topic="Action;add1-to-name-workflow-action-group">
       <bpmn:incoming>Flow_1anvemv</bpmn:incoming>
       <bpmn:outgoing>Flow_0wsvibo</bpmn:outgoing>
     </bpmn:serviceTask>

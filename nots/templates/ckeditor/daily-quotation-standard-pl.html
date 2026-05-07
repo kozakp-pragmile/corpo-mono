@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <title>Dzienne notowanie giełdowe</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 style="color:#0a4f8a;">Dzienne notowanie giełdowe</h1>
+<p>
+  Drogi/Droga {{name}}, oto Twoje notowanie z dnia {{quotationDate}}.
+</p>
+
+<h2>{{paperName}} ({{paperSymbol}})</h2>
+
+<table style="border-collapse:collapse;">
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Otwarcie:</strong></td>
+    <td>{{openPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Zamknięcie:</strong></td>
+    <td>{{closePrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Najwyższy:</strong></td>
+    <td>{{highPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Najniższy:</strong></td>
+    <td>{{lowPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Wolumen:</strong></td>
+    <td>{{volume}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Zmiana:</strong></td>
+    <td>{{changePercent}}%</td>
+  </tr>
+</table>
+
+<p>
+  Z poważaniem, <br/>
+  <em>Zespół Corporater</em>
+</p>
+<p>
+  <img alt="[Logo Corporater]" src="https://corporater.com/" data-image-name="owl"/>
+</p>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Daily Stock Quotations - Digest</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 style="color:#0a4f8a;">Daily Stock Quotations - Digest</h1>
+<p>
+  Dear {{name}}, here is your aggregated digest for {{quotationDate}}.
+</p>
+<p>
+  The table below summarises the quotations of the papers you subscribed to.
+</p>
+
+<div class="aggregated-messages-in-adjustable-table-format">
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+    <tr>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Paper</th>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Details</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#messages}}
+    <tr>
+      <td style="border:1px solid #ddd; padding:8px;">{{subject}}</td>
+      <td style="border:1px solid #ddd; padding:8px;">{{{body}}}</td>
+    </tr>
+    {{/messages}}
+    </tbody>
+  </table>
+</div>
+
+<p>
+  Regards, <br/>
+  <em>The Corporater team</em>
+</p>
+<p>
+  <img alt="[Corporater logo]" src="https://corporater.com/" data-image-name="owl"/>
+</p>
+</body>
+</html>

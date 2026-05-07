@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <title>Dzienne notowania giełdowe - podsumowanie</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 style="color:#0a4f8a;">Dzienne notowania giełdowe - podsumowanie</h1>
+<p>
+  Drogi/Droga {{name}}, oto Twoje zagregowane podsumowanie z dnia
+  {{quotationDate}}.
+</p>
+<p>
+  Poniższa tabela zawiera podsumowanie notowań papierów wartościowych,
+  które subskrybujesz.
+</p>
+
+<div class="aggregated-messages-in-adjustable-table-format">
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+    <tr>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Papier</th>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Szczegóły</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#messages}}
+    <tr>
+      <td style="border:1px solid #ddd; padding:8px;">{{subject}}</td>
+      <td style="border:1px solid #ddd; padding:8px;">{{{body}}}</td>
+    </tr>
+    {{/messages}}
+    </tbody>
+  </table>
+</div>
+
+<p>
+  Z poważaniem, <br/>
+  <em>Zespół Corporater</em>
+</p>
+<p>
+  <img alt="[Logo Corporater]" src="https://corporater.com/" data-image-name="owl"/>
+</p>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:remove="all">Daily Stock Quotation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        color: #333;
+      }
+
+      .header {
+        border-bottom: 2px solid #0a4f8a;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      .header h1 {
+        margin: 0;
+        color: #0a4f8a;
+      }
+
+      .quotation {
+        margin: 15px 0;
+      }
+
+      .price-row {
+        display: flex;
+        gap: 24px;
+        margin: 8px 0;
+      }
+
+      .price-row .label {
+        font-weight: bold;
+        min-width: 90px;
+      }
+
+      .positive {
+        color: #1f8a3a;
+        font-weight: bold;
+      }
+
+      .negative {
+        color: #c0392b;
+        font-weight: bold;
+      }
+
+      .footer {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <!--/*@thymesVar id="name" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="paperSymbol" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="paperName" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="quotationDate" type="java.util.Date"*/-->
+    <!--/*@thymesVar id="openPrice" type="java.math.BigDecimal"*/-->
+    <!--/*@thymesVar id="closePrice" type="java.math.BigDecimal"*/-->
+    <!--/*@thymesVar id="highPrice" type="java.math.BigDecimal"*/-->
+    <!--/*@thymesVar id="lowPrice" type="java.math.BigDecimal"*/-->
+    <!--/*@thymesVar id="volume" type="java.lang.Long"*/-->
+    <!--/*@thymesVar id="changePercent" type="java.math.BigDecimal"*/-->
+    <div class="header">
+      <h1>Daily Stock Quotation</h1>
+      <p>
+        Dear <span th:text="${name}">Investor</span>, here is your quotation
+        for
+        <span th:text="${#dates.format(quotationDate, 'dd MMM yyyy')}"
+          >07 May 2026</span
+        >.
+      </p>
+    </div>
+
+    <div class="quotation">
+      <h2>
+        <span th:text="${paperName}">Paper Name</span>
+        (<span th:text="${paperSymbol}">SYM</span>)
+      </h2>
+
+      <div class="price-row">
+        <span class="label">Open:</span>
+        <span th:text="${#numbers.formatDecimal(openPrice, 1, 2)}">0.00</span>
+      </div>
+      <div class="price-row">
+        <span class="label">Close:</span>
+        <span th:text="${#numbers.formatDecimal(closePrice, 1, 2)}">0.00</span>
+      </div>
+      <div class="price-row">
+        <span class="label">High:</span>
+        <span th:text="${#numbers.formatDecimal(highPrice, 1, 2)}">0.00</span>
+      </div>
+      <div class="price-row">
+        <span class="label">Low:</span>
+        <span th:text="${#numbers.formatDecimal(lowPrice, 1, 2)}">0.00</span>
+      </div>
+      <div class="price-row">
+        <span class="label">Volume:</span>
+        <span th:text="${#numbers.formatInteger(volume, 0, 'COMMA')}">0</span>
+      </div>
+      <div class="price-row">
+        <span class="label">Change:</span>
+        <span
+          th:text="${#numbers.formatDecimal(changePercent, 1, 2) + '%'}"
+          th:class="${changePercent >= 0} ? 'positive' : 'negative'"
+          >0.00%</span
+        >
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>
+        This is an automated notification. Please do not reply to this email.
+      </p>
+      <img alt="[Corporater logo]" src="cid:owl" />
+    </div>
+  </body>
+</html>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:remove="all">Tägliche Aktiennotierungen - Übersicht</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        color: #333;
+      }
+
+      .header {
+        border-bottom: 2px solid #0a4f8a;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      .header h1 {
+        margin: 0;
+        color: #0a4f8a;
+      }
+
+      table.quotations {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+
+      table.quotations th,
+      table.quotations td {
+        border: 1px solid #ddd;
+        padding: 8px 12px;
+        text-align: left;
+      }
+
+      table.quotations th {
+        background-color: #0a4f8a;
+        color: white;
+      }
+
+      table.quotations tr:nth-child(even) {
+        background-color: #f7f9fb;
+      }
+
+      .footer {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <!--/*@thymesVar id="name" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="quotationDate" type="java.util.Date"*/-->
+    <!--/*@thymesVar id="messages" type="java.util.List<com.corporater.pigeon.backend.shared.values.PartialMessage>" */-->
+    <div class="header">
+      <h1>Tägliche Aktiennotierungen - Übersicht</h1>
+      <p>
+        Sehr geehrte/r <span th:text="${name}">Anleger/in</span>, hier ist
+        Ihre aggregierte Übersicht vom
+        <span th:text="${#dates.format(quotationDate, 'dd.MM.yyyy')}"
+          >07.05.2026</span
+        >.
+      </p>
+    </div>
+
+    <p>
+      Die folgende Tabelle fasst die Notierungen der von Ihnen abonnierten
+      Wertpapiere zusammen.
+    </p>
+
+    <table class="quotations">
+      <thead>
+        <tr>
+          <th>Wertpapier</th>
+          <th>Details</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="message : ${messages}">
+          <td th:text="${message.subject}">SYMBOL</td>
+          <td th:utext="${message.body}">Details</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p>
+        Dies ist eine automatisierte Benachrichtigung. Bitte antworten Sie
+        nicht auf diese E-Mail.
+      </p>
+      <img alt="[Corporater Logo]" src="cid:owl" />
+    </div>
+  </body>
+</html>

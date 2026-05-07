@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <title>Daglige børsnoteringer - sammendrag</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 style="color:#0a4f8a;">Daglige børsnoteringer - sammendrag</h1>
+<p>
+  Kjære {{name}}, her er ditt aggregerte sammendrag for {{quotationDate}}.
+</p>
+<p>
+  Tabellen nedenfor oppsummerer noteringene for verdipapirene du abonnerer
+  på.
+</p>
+
+<div class="aggregated-messages-in-adjustable-table-format">
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+    <tr>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Verdipapir</th>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Detaljer</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#messages}}
+    <tr>
+      <td style="border:1px solid #ddd; padding:8px;">{{subject}}</td>
+      <td style="border:1px solid #ddd; padding:8px;">{{{body}}}</td>
+    </tr>
+    {{/messages}}
+    </tbody>
+  </table>
+</div>
+
+<p>
+  Med vennlig hilsen, <br/>
+  <em>Corporater-teamet</em>
+</p>
+<p>
+  <img alt="[Corporater logo]" src="https://corporater.com/" data-image-name="owl"/>
+</p>
+</body>
+</html>

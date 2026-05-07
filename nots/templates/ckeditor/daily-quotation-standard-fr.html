@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>Cotation boursière quotidienne</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 style="color:#0a4f8a;">Cotation boursière quotidienne</h1>
+<p>
+  Cher/Chère {{name}}, voici votre cotation du {{quotationDate}}.
+</p>
+
+<h2>{{paperName}} ({{paperSymbol}})</h2>
+
+<table style="border-collapse:collapse;">
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Ouverture :</strong></td>
+    <td>{{openPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Clôture :</strong></td>
+    <td>{{closePrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Plus haut :</strong></td>
+    <td>{{highPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Plus bas :</strong></td>
+    <td>{{lowPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Volume :</strong></td>
+    <td>{{volume}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Variation :</strong></td>
+    <td>{{changePercent}}%</td>
+  </tr>
+</table>
+
+<p>
+  Cordialement, <br/>
+  <em>L'équipe Corporater</em>
+</p>
+<p>
+  <img alt="[Logo Corporater]" src="https://corporater.com/" data-image-name="owl"/>
+</p>
+</body>
+</html>

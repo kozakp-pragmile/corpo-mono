@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <title>Tägliche Aktiennotierung</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 style="color:#0a4f8a;">Tägliche Aktiennotierung</h1>
+<p>
+  Sehr geehrte/r {{name}}, hier ist Ihre Notierung vom {{quotationDate}}.
+</p>
+
+<h2>{{paperName}} ({{paperSymbol}})</h2>
+
+<table style="border-collapse:collapse;">
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Eröffnung:</strong></td>
+    <td>{{openPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Schluss:</strong></td>
+    <td>{{closePrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Höchstkurs:</strong></td>
+    <td>{{highPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Tiefstkurs:</strong></td>
+    <td>{{lowPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Volumen:</strong></td>
+    <td>{{volume}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Änderung:</strong></td>
+    <td>{{changePercent}}%</td>
+  </tr>
+</table>
+
+<p>
+  Mit freundlichen Grüßen, <br/>
+  <em>Das Corporater-Team</em>
+</p>
+<p>
+  <img alt="[Corporater Logo]" src="https://corporater.com/" data-image-name="owl"/>
+</p>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <title>Tägliche Aktiennotierungen - Übersicht</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 style="color:#0a4f8a;">Tägliche Aktiennotierungen - Übersicht</h1>
+<p>
+  Sehr geehrte/r {{name}}, hier ist Ihre aggregierte Übersicht vom
+  {{quotationDate}}.
+</p>
+<p>
+  Die folgende Tabelle fasst die Notierungen der von Ihnen abonnierten
+  Wertpapiere zusammen.
+</p>
+
+<div class="aggregated-messages-in-adjustable-table-format">
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+    <tr>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Wertpapier</th>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Details</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#messages}}
+    <tr>
+      <td style="border:1px solid #ddd; padding:8px;">{{subject}}</td>
+      <td style="border:1px solid #ddd; padding:8px;">{{{body}}}</td>
+    </tr>
+    {{/messages}}
+    </tbody>
+  </table>
+</div>
+
+<p>
+  Mit freundlichen Grüßen, <br/>
+  <em>Das Corporater-Team</em>
+</p>
+<p>
+  <img alt="[Corporater Logo]" src="https://corporater.com/" data-image-name="owl"/>
+</p>
+</body>
+</html>

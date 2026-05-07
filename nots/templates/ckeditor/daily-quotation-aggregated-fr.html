@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <title>Cotations boursières quotidiennes - synthèse</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 style="color:#0a4f8a;">Cotations boursières quotidiennes - synthèse</h1>
+<p>
+  Cher/Chère {{name}}, voici votre synthèse agrégée du {{quotationDate}}.
+</p>
+<p>
+  Le tableau ci-dessous récapitule les cotations des titres auxquels vous
+  êtes abonné(e).
+</p>
+
+<div class="aggregated-messages-in-adjustable-table-format">
+  <table style="width:100%; border-collapse:collapse;">
+    <thead>
+    <tr>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Titre</th>
+      <th style="background-color:#0a4f8a; color:white; padding:8px;">Détails</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#messages}}
+    <tr>
+      <td style="border:1px solid #ddd; padding:8px;">{{subject}}</td>
+      <td style="border:1px solid #ddd; padding:8px;">{{{body}}}</td>
+    </tr>
+    {{/messages}}
+    </tbody>
+  </table>
+</div>
+
+<p>
+  Cordialement, <br/>
+  <em>L'équipe Corporater</em>
+</p>
+<p>
+  <img alt="[Logo Corporater]" src="https://corporater.com/" data-image-name="owl"/>
+</p>
+</body>
+</html>

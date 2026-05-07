@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <title>Daglig børsnotering</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<h1 style="color:#0a4f8a;">Daglig børsnotering</h1>
+<p>
+  Kjære {{name}}, her er din notering for {{quotationDate}}.
+</p>
+
+<h2>{{paperName}} ({{paperSymbol}})</h2>
+
+<table style="border-collapse:collapse;">
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Åpning:</strong></td>
+    <td>{{openPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Slutt:</strong></td>
+    <td>{{closePrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Høy:</strong></td>
+    <td>{{highPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Lav:</strong></td>
+    <td>{{lowPrice}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Volum:</strong></td>
+    <td>{{volume}}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 14px 6px 0;"><strong>Endring:</strong></td>
+    <td>{{changePercent}}%</td>
+  </tr>
+</table>
+
+<p>
+  Med vennlig hilsen, <br/>
+  <em>Corporater-teamet</em>
+</p>
+<p>
+  <img alt="[Corporater logo]" src="https://corporater.com/" data-image-name="owl"/>
+</p>
+</body>
+</html>

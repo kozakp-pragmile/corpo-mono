@@ -1,0 +1,39 @@
+### Sanity check: VictoriaLogs is up
+GET http://localhost:8160/select/logsql/query
+
+
+### findSystemUserChangesInWindow
+# Mirrors ActivityLogPmContextVictoriaLogsClient#findSystemUserChangesInWindow:
+#   query  = _userId:in("<id1>","<id2>") AND _time:[<from>, <to>]
+#   start  = <from>
+#   end    = <to>
+# Response is JSON-lines (one log entry per line) with at least
+# _rid, _time, _msg, _objectType, _objectName.
+POST http://localhost:8160/select/logsql/query
+Content-Type: application/x-www-form-urlencoded
+
+query=_userId:in("ServiceTaskExecutor") AND _time:[2026-05-01T00:00:00Z, 2026-05-08T00:00:00Z]&start=2026-05-01T00:00:00Z&end=2026-05-08T00:00:00Z
+
+
+### Same query, parameterised via @-variables (easier to tweak)
+@from = 2026-05-01T00:00:00Z
+@to   = 2026-05-08T00:00:00Z
+
+POST http://localhost:8160/select/logsql/query
+Content-Type: application/x-www-form-urlencoded
+
+query=_userId:in("system","admin") AND _time:[{{from}}, {{to}}]&start={{from}}&end={{to}}
+
+
+### Single-user variant
+POST http://localhost:8160/select/logsql/query
+Content-Type: application/x-www-form-urlencoded
+
+query=_userId:"system" AND _time:[2026-05-01T00:00:00Z, 2026-05-08T00:00:00Z]&start=2026-05-01T00:00:00Z&end=2026-05-08T00:00:00Z
+
+
+### Same call, but limit + project just the fields the Java code reads
+POST http://localhost:8160/select/logsql/query
+Content-Type: application/x-www-form-urlencoded
+
+query=_userId:in("system","admin") AND _time:[2026-05-01T00:00:00Z, 2026-05-08T00:00:00Z] | fields _rid, _time, _msg, _objectType, _objectName | limit 100&start=2026-05-01T00:00:00Z&end=2026-05-08T00:00:00Z

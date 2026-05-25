@@ -1,0 +1,10 @@
+{
+  "name": "pigeon-api-tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "standard": "node src/standard-notification-type.js",
+    "aggregated": "node src/aggregated-notification-type.js"
+  }
+}

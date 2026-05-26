@@ -112,26 +112,35 @@ async function run() {
   step("13. Query aggregated with search filter");
   await pigeon.queryAggregated({ search: "Digest" });
 
-  // ── 14. Cleanup linked standard ────────────────────────────
-  step("14. Remove linked standard template");
+  // ── 14. Attempt premature delete of aggregated while linked standard still exists ──
+  step("14. Attempt to delete aggregated notification type before removing linked standard (expected to fail)");
+  try {
+    await pigeon.deleteAggregated(aggId);
+    fail("Aggregated was unexpectedly deleted while a linked standard still exists");
+  } catch (e) {
+    ok(`Rejected as expected — status ${e.status}, body: ${JSON.stringify(e.data)}`);
+  }
+
+  // ── 15. Cleanup linked standard ────────────────────────────
+  step("15. Remove linked standard template");
   await pigeon.removeStandardTemplate(sntId, linkedTemplateId);
   ok("Template removed");
 
-  step("15. Delete linked standard notification type");
+  step("16. Delete linked standard notification type");
   await pigeon.deleteStandard(sntId);
   ok("Deleted");
 
-  // ── 15. Cleanup aggregated templates ───────────────────────
-  step("16. Remove aggregated template (de)");
+  // ── Cleanup aggregated templates ───────────────────────────
+  step("17. Remove aggregated template (de)");
   await pigeon.removeAggregatedTemplate(aggId, aggDeTemplateId);
   ok("Template removed");
 
-  step("17. Remove aggregated template (en)");
+  step("18. Remove aggregated template (en)");
   await pigeon.removeAggregatedTemplate(aggId, aggEnTemplateId);
   ok("Template removed");
 
-  // ── 16. Delete aggregated notification type ────────────────
-  step("18. Delete aggregated notification type");
+  // ── Delete aggregated notification type ────────────────────
+  step("19. Delete aggregated notification type");
   await pigeon.deleteAggregated(aggId);
   ok("Deleted");
 

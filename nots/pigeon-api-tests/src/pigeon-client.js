@@ -75,9 +75,9 @@ export function createClient(
 
   const STANDARD_BASE = "/private/api/standard-notification-types";
 
-  async function createStandard({ name, channel, senderName, aggregatedNotificationTypeId } = {}) {
+  async function createStandard({ name, channel, senderName, aggregatedNotificationTypeId, defaultNotificationTiming } = {}) {
     return request("POST", STANDARD_BASE, {
-      body: { name, channel, senderName, aggregatedNotificationTypeId },
+      body: { name, channel, senderName, aggregatedNotificationTypeId, defaultNotificationTiming },
     });
   }
 

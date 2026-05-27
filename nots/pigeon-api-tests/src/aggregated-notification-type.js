@@ -84,6 +84,7 @@ async function run() {
     channel: "EMAIL",
     senderName: "Pigeon Tests",
     aggregatedNotificationTypeId: aggId,
+    defaultNotificationTiming: "DAILY",
   });
   const sntId = linkedStandard.id;
   ok(`Linked standard: ${sntId}`);

@@ -20,7 +20,7 @@ export function createClient(
     "X-On-Behalf-Of-Last-Name": lastName,
   };
 
-  async function request(method, path, { body, query, formData, raw } = {}) {
+  async function request(method, path, { body, query, formData, raw, accessToken } = {}) {
     const url = new URL(base + path);
     if (query) {
       for (const [k, v] of Object.entries(query)) {
@@ -33,7 +33,9 @@ export function createClient(
       }
     }
 
-    const headers = { ...onBehalfOfHeaders };
+    const headers = accessToken
+      ? { Authorization: `Bearer ${accessToken}` }
+      : { ...onBehalfOfHeaders };
     let requestBody;
     const isMultipart = !!formData;
 
@@ -129,6 +131,97 @@ export function createClient(
     return request("DELETE", `${STANDARD_BASE}/${id}/templates/${templateId}`);
   }
 
+  // ── Legacy Notification Types ───────────────────────────────
+
+  const LEGACY_BASE = "/private/api/notification-types";
+
+  async function createLegacy({ name, channel, senderName, defaultTiming } = {}) {
+    return request("POST", LEGACY_BASE, {
+      body: { name, channel, senderName, defaultTiming },
+    });
+  }
+
+  async function findLegacy(id) {
+    return request("GET", `${LEGACY_BASE}/${id}`);
+  }
+
+  async function deleteLegacy(id, version) {
+    return request("DELETE", `${LEGACY_BASE}/${id}`, { query: { version } });
+  }
+
+  async function addLegacyTemplate(
+    id,
+    { name, language, syntax, type = "STANDARD", subject, contentPath, contentType, version = 0 } = {}
+  ) {
+    return request("POST", `${LEGACY_BASE}/${id}/templates`, {
+      formData: await buildLegacyTemplateForm({
+        name,
+        language,
+        syntax,
+        type,
+        subject,
+        contentPath,
+        contentType,
+        version,
+      }),
+    });
+  }
+
+  async function removeLegacyTemplate(id, templateId, version) {
+    return request("DELETE", `${LEGACY_BASE}/${id}/templates/${templateId}`, {
+      query: { version },
+    });
+  }
+
+  async function addLegacyImage(id, { name, imagePath, version = 0, contentType } = {}) {
+    return request("POST", `${LEGACY_BASE}/${id}/images`, {
+      formData: await buildImageForm({ name, imagePath, version, contentType }),
+    });
+  }
+
+  async function removeLegacyImage(id, imageId, version) {
+    return request("DELETE", `${LEGACY_BASE}/${id}/images/${imageId}`, {
+      query: { version },
+    });
+  }
+
+  // ── Global Images ───────────────────────────────────────────
+
+  const GLOBAL_IMAGES_BASE = "/public/api/global-images";
+
+  async function addGlobalImage({ name, imagePath, contentType, accessToken } = {}) {
+    return request("POST", GLOBAL_IMAGES_BASE, {
+      formData: await buildImageForm({ name, imagePath, contentType }),
+      accessToken,
+    });
+  }
+
+  async function deleteGlobalImage(id, accessToken) {
+    return request("DELETE", `${GLOBAL_IMAGES_BASE}/${id}`, { accessToken });
+  }
+
+  // ── Notification Orders ─────────────────────────────────────
+
+  const ORDERS_BASE = "/private/api/notification-orders";
+
+  async function createNotificationOrder({
+    notificationTypeId,
+    recipients,
+    tags,
+    sender,
+    variables,
+    timing = "DEFAULT",
+    attachmentIds,
+  } = {}) {
+    return request("POST", ORDERS_BASE, {
+      body: { notificationTypeId, recipients, tags, sender, variables, timing, attachmentIds },
+    });
+  }
+
+  async function findNotificationOrder(id) {
+    return request("GET", `${ORDERS_BASE}/${id}`);
+  }
+
   // ── Aggregated Notification Types ───────────────────────────
 
   const AGGREGATED_BASE = "/private/api/aggregated-notification-types";
@@ -201,6 +294,17 @@ export function createClient(
     findAggregatedTemplate,
     downloadAggregatedTemplateContent,
     removeAggregatedTemplate,
+    createLegacy,
+    findLegacy,
+    deleteLegacy,
+    addLegacyTemplate,
+    removeLegacyTemplate,
+    addLegacyImage,
+    removeLegacyImage,
+    addGlobalImage,
+    deleteGlobalImage,
+    createNotificationOrder,
+    findNotificationOrder,
   };
 }
 
@@ -214,6 +318,55 @@ async function buildTemplateForm({ name, language, syntax, subject, contentPath,
   form.set("language", language);
   form.set("syntax", syntax);
   form.set("subject", subject);
+  form.set("content", file, path.basename(contentPath));
+  return form;
+}
+
+async function buildImageForm({ name, imagePath, version, contentType }) {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const bytes = fs.readFileSync(imagePath);
+  const inferredType = contentType ?? inferImageContentType(imagePath);
+  const file = new Blob([bytes], { type: inferredType });
+  const form = new FormData();
+  form.set("name", name);
+  if (version !== undefined && version !== null) {
+    form.set("version", String(version));
+  }
+  form.set("image", file, path.basename(imagePath));
+  return form;
+}
+
+function inferImageContentType(filePath) {
+  const lower = filePath.toLowerCase();
+  if (lower.endsWith(".png")) return "image/png";
+  if (lower.endsWith(".gif")) return "image/gif";
+  if (lower.endsWith(".webp")) return "image/webp";
+  if (lower.endsWith(".svg")) return "image/svg+xml";
+  return "image/jpeg";
+}
+
+async function buildLegacyTemplateForm({
+  name,
+  language,
+  syntax,
+  type,
+  subject,
+  contentPath,
+  contentType,
+  version,
+}) {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const bytes = fs.readFileSync(contentPath);
+  const file = new Blob([bytes], { type: contentType ?? "text/html" });
+  const form = new FormData();
+  form.set("name", name);
+  form.set("language", language);
+  form.set("syntax", syntax);
+  form.set("type", type);
+  form.set("subject", subject);
+  form.set("version", String(version));
   form.set("content", file, path.basename(contentPath));
   return form;
 }

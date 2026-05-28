@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "standard": "node src/standard-notification-type.js",
-    "aggregated": "node src/aggregated-notification-type.js"
+    "aggregated": "node src/aggregated-notification-type.js",
+    "immediate": "node src/immediate-notification.js"
   }
 }

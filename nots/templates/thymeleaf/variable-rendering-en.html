@@ -1,0 +1,32 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:remove="all">Variable rendering test</title>
+  </head>
+  <body>
+    <!--/*@thymesVar id="name" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="workflowName" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="linkUrl" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="richContent" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="messageBody" type="java.lang.String"*/-->
+    <p>Hello <span th:text="${name}">Investor</span>,</p>
+
+    <h3>1. Plain-text variable (HTML-escaped)</h3>
+    <p>Workflow: <span th:text="${workflowName}">workflow</span></p>
+
+    <h3>2. URL variable injected directly into an href</h3>
+    <p><a th:href="${linkUrl}" href="#">Open the task</a></p>
+
+    <h3>3. Rich HTML variable (rewritten to th:utext when detected as HTML)</h3>
+    <div th:text="${richContent}">rich content</div>
+
+    <h3>4. Free-form message body</h3>
+    <p th:text="${messageBody}">message body</p>
+
+    <p>
+      Regards, <br/>
+      <em>The Corporater team</em>
+    </p>
+  </body>
+</html>

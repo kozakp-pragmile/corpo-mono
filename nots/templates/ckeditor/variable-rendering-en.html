@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Variable rendering test</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<p>Hello {{name}},</p>
+
+<h3>1. Plain-text variable (HTML-escaped)</h3>
+<p>Workflow: {{workflowName}}</p>
+
+<h3>2. URL variable injected directly into an href</h3>
+<p><a href="{{linkUrl}}">Open the task</a></p>
+
+<h3>3. Rich HTML variable (emitted raw)</h3>
+<div>{{richContent}}</div>
+
+<h3>4. Free-form message body</h3>
+<p>{{messageBody}}</p>
+
+<p>
+  Regards, <br/>
+  <em>The Corporater team</em>
+</p>
+</body>
+</html>

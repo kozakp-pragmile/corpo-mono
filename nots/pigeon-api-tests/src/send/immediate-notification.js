@@ -1,11 +1,11 @@
 import { fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
-import { createClient } from "./pigeon-client.js";
-import { step, ok, fail } from "./log.js";
+import { createClient } from "../pigeon-client.js";
+import { step, ok, fail } from "../log.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = resolve(__dirname, "..", "..", "templates", "immediate");
-const IMAGES_DIR = resolve(__dirname, "..", "..", "images");
+const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates", "immediate");
+const IMAGES_DIR = resolve(__dirname, "..", "..", "..", "images");
 
 const BASE_URL = process.env.PIGEON_URL || "http://localhost:8086/pigeon/server";
 // Bearer token for the `/public/api/global-images` endpoint, used only by STANDARD

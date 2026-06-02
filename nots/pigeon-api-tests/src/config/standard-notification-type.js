@@ -1,10 +1,10 @@
 import { fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
-import { createClient } from "./pigeon-client.js";
-import { step, ok, fail } from "./log.js";
+import { createClient } from "../pigeon-client.js";
+import { step, ok, fail } from "../log.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = resolve(__dirname, "..", "..", "templates");
+const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates");
 
 const BASE_URL = process.env.PIGEON_URL || "http://localhost:8086/pigeon/server";
 const TEST_EMAIL = process.env.PIGEON_TEST_EMAIL;

@@ -1,10 +1,10 @@
 import { fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
-import { createClient } from "./pigeon-client.js";
-import { step, ok, fail } from "./log.js";
+import { createClient } from "../pigeon-client.js";
+import { step, ok, fail } from "../log.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = resolve(__dirname, "..", "..", "templates", "legacy-aggregation");
+const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates", "legacy-aggregation");
 
 const BASE_URL = process.env.PIGEON_URL || "http://localhost:8086/pigeon/server";
 // Global templates live under /public/api and require a bearer token (a JWT with

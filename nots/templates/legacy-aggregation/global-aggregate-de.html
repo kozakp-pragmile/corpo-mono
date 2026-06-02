@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:remove="all">Globale Sammel-Übersicht — DE</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; color:#333;">
+    <!--/*@thymesVar id="recipientName" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="messages" type="java.util.List<com.corporater.pigeon.backend.shared.values.TemplatePartialMessage>" */-->
+    <div style="background:#6a3d9a; color:#fff; padding:14px;">
+      <h1 style="margin:0; font-size:18px;">
+        SAMMEL-ÜBERSICHT (AGGREGATE DIGEST) · WRAPPER = GLOBALE aggregate Vorlage (GLOBAL template) · Sprache: DE
+      </h1>
+    </div>
+    <p>
+      Diese GLOBALE Vorlage wurde gewählt, weil die gebündelten Aufträge dieses Empfängers
+      <strong>mehr als einen Benachrichtigungstyp</strong> umfassen (orders span more than one notification type).
+    </p>
+    <p>Empfänger (recipient): <strong th:text="${recipientName}">recipient</strong></p>
+    <p>
+      Diese Übersicht bündelt
+      <strong th:text="${#lists.size(messages)}">0</strong>
+      Standardteil(e) (standard parts). Jeder Teil zeigt unten seinen eigenen Betreff (mit Typ und Sprache):
+    </p>
+    <ol>
+      <li th:each="message : ${messages}" style="margin-bottom:14px;">
+        <div style="font-weight:bold; color:#6a3d9a;" th:text="${message.subject}">part subject</div>
+        <div th:utext="${message.body}">part body</div>
+      </li>
+    </ol>
+  </body>
+</html>

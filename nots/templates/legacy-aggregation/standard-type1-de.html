@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:remove="all">Standardteil — Typ 1 — DE</title>
+  </head>
+  <body>
+    <!--/*@thymesVar id="recipientName" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="orderLabel" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="note" type="java.lang.String"*/-->
+    <div style="border:1px solid #1f8a3a; border-radius:6px; padding:12px; margin:10px 0;">
+      <p style="margin:0 0 6px; font-weight:bold; color:#1f8a3a;">
+        STANDARDTEIL (STANDARD PART) · Benachrichtigungstyp 1 "Stock Valuation" · Sprache: DE
+      </p>
+      <p style="margin:2px 0;">Aus Auftrag (from order): <span th:text="${orderLabel}">order</span></p>
+      <p style="margin:2px 0;">Für Empfänger (for recipient): <span th:text="${recipientName}">recipient</span></p>
+      <p style="margin:2px 0;">Hinweis (note): <span th:text="${note}">note</span></p>
+    </div>
+  </body>
+</html>

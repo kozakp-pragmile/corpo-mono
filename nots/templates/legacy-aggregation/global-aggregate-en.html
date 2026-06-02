@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:remove="all">Global aggregate digest — EN</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; color:#333;">
+    <!--/*@thymesVar id="recipientName" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="messages" type="java.util.List<com.corporater.pigeon.backend.shared.values.TemplatePartialMessage>" */-->
+    <div style="background:#6a3d9a; color:#fff; padding:14px;">
+      <h1 style="margin:0; font-size:18px;">
+        AGGREGATE DIGEST · WRAPPER = GLOBAL aggregate template · Language: EN
+      </h1>
+    </div>
+    <p>
+      This GLOBAL wrapper was chosen because the bundled orders for this recipient span
+      <strong>more than one notification type</strong>, so no single type's AGGREGATE template applies.
+    </p>
+    <p>Recipient: <strong th:text="${recipientName}">recipient</strong></p>
+    <p>
+      This digest bundles
+      <strong th:text="${#lists.size(messages)}">0</strong>
+      standard part(s). Each part below shows its own subject (which already states the type and language):
+    </p>
+    <ol>
+      <li th:each="message : ${messages}" style="margin-bottom:14px;">
+        <div style="font-weight:bold; color:#6a3d9a;" th:text="${message.subject}">part subject</div>
+        <div th:utext="${message.body}">part body</div>
+      </li>
+    </ol>
+  </body>
+</html>

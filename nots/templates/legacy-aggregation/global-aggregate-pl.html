@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:remove="all">Globalne zbiorcze podsumowanie — PL</title>
+  </head>
+  <body style="font-family: Arial, sans-serif; color:#333;">
+    <!--/*@thymesVar id="recipientName" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="messages" type="java.util.List<com.corporater.pigeon.backend.shared.values.TemplatePartialMessage>" */-->
+    <div style="background:#6a3d9a; color:#fff; padding:14px;">
+      <h1 style="margin:0; font-size:18px;">
+        PODSUMOWANIE ZBIORCZE (AGGREGATE DIGEST) · WRAPPER = GLOBALNY szablon zbiorczy (GLOBAL template) · Język: PL
+      </h1>
+    </div>
+    <p>
+      Ten GLOBALNY szablon został wybrany, ponieważ zgrupowane zlecenia tego odbiorcy obejmują
+      <strong>więcej niż jeden typ powiadomienia</strong> (orders span more than one notification type).
+    </p>
+    <p>Odbiorca (recipient): <strong th:text="${recipientName}">recipient</strong></p>
+    <p>
+      To podsumowanie grupuje
+      <strong th:text="${#lists.size(messages)}">0</strong>
+      część(ci) standardową(e) (standard parts). Każda część poniżej pokazuje własny temat (z typem i językiem):
+    </p>
+    <ol>
+      <li th:each="message : ${messages}" style="margin-bottom:14px;">
+        <div style="font-weight:bold; color:#6a3d9a;" th:text="${message.subject}">part subject</div>
+        <div th:utext="${message.body}">part body</div>
+      </li>
+    </ol>
+  </body>
+</html>

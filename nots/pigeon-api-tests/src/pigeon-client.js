@@ -151,7 +151,7 @@ export function createClient(
 
   async function addLegacyTemplate(
     id,
-    { name, language, syntax, type = "STANDARD", subject, contentPath, contentType, version = 0 } = {}
+    { name, language, syntax, type = "STANDARD", aggregationDisplayType, subject, contentPath, contentType, version = 0 } = {}
   ) {
     return request("POST", `${LEGACY_BASE}/${id}/templates`, {
       formData: await buildLegacyTemplateForm({
@@ -159,6 +159,7 @@ export function createClient(
         language,
         syntax,
         type,
+        aggregationDisplayType,
         subject,
         contentPath,
         contentType,
@@ -183,6 +184,62 @@ export function createClient(
     return request("DELETE", `${LEGACY_BASE}/${id}/images/${imageId}`, {
       query: { version },
     });
+  }
+
+  // ── Recipient Configurations ────────────────────────────────
+
+  const RECIPIENTS_BASE = "/private/api/recipients";
+
+  async function createRecipient({ name, authId, externalIdSource, externalIdValue, email, phoneNumber, languages } = {}) {
+    return request("POST", RECIPIENTS_BASE, {
+      body: {
+        name,
+        authId,
+        externalId: { source: externalIdSource, value: externalIdValue },
+        email,
+        phoneNumber,
+        languages,
+      },
+    });
+  }
+
+  async function findRecipient(id) {
+    return request("GET", `${RECIPIENTS_BASE}/${id}`);
+  }
+
+  async function setRecipientSchedule(id, { hour, minute, timeZone } = {}) {
+    return request("PUT", `${RECIPIENTS_BASE}/${id}/schedule`, {
+      body: { hour, minute, timeZone },
+    });
+  }
+
+  async function deleteRecipient(id) {
+    return request("DELETE", `${RECIPIENTS_BASE}/${id}`);
+  }
+
+  // ── Global Templates ────────────────────────────────────────
+
+  const GLOBAL_TEMPLATES_BASE = "/public/api/global-templates";
+
+  async function addGlobalTemplate(
+    { name, language, syntax, subject, contentPath, contentType, aggregationDisplayType = "STANDARD", accessToken } = {}
+  ) {
+    return request("POST", GLOBAL_TEMPLATES_BASE, {
+      formData: await buildGlobalTemplateForm({
+        name,
+        language,
+        syntax,
+        subject,
+        contentPath,
+        contentType,
+        aggregationDisplayType,
+      }),
+      accessToken,
+    });
+  }
+
+  async function deleteGlobalTemplate(id, accessToken) {
+    return request("DELETE", `${GLOBAL_TEMPLATES_BASE}/${id}`, { accessToken });
   }
 
   // ── Global Images ───────────────────────────────────────────
@@ -301,6 +358,12 @@ export function createClient(
     removeLegacyTemplate,
     addLegacyImage,
     removeLegacyImage,
+    createRecipient,
+    findRecipient,
+    setRecipientSchedule,
+    deleteRecipient,
+    addGlobalTemplate,
+    deleteGlobalTemplate,
     addGlobalImage,
     deleteGlobalImage,
     createNotificationOrder,
@@ -318,6 +381,29 @@ async function buildTemplateForm({ name, language, syntax, subject, contentPath,
   form.set("language", language);
   form.set("syntax", syntax);
   form.set("subject", subject);
+  form.set("content", file, path.basename(contentPath));
+  return form;
+}
+
+async function buildGlobalTemplateForm({
+  name,
+  language,
+  syntax,
+  subject,
+  contentPath,
+  contentType,
+  aggregationDisplayType,
+}) {
+  const fs = await import("node:fs");
+  const path = await import("node:path");
+  const bytes = fs.readFileSync(contentPath);
+  const file = new Blob([bytes], { type: contentType ?? "text/html" });
+  const form = new FormData();
+  form.set("name", name);
+  form.set("language", language);
+  form.set("syntax", syntax);
+  form.set("subject", subject);
+  form.set("aggregationDisplayType", aggregationDisplayType);
   form.set("content", file, path.basename(contentPath));
   return form;
 }
@@ -351,6 +437,7 @@ async function buildLegacyTemplateForm({
   language,
   syntax,
   type,
+  aggregationDisplayType,
   subject,
   contentPath,
   contentType,
@@ -365,6 +452,9 @@ async function buildLegacyTemplateForm({
   form.set("language", language);
   form.set("syntax", syntax);
   form.set("type", type);
+  if (aggregationDisplayType) {
+    form.set("aggregationDisplayType", aggregationDisplayType);
+  }
   form.set("subject", subject);
   form.set("version", String(version));
   form.set("content", file, path.basename(contentPath));

@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "standard": "node src/standard-notification-type.js",
-    "aggregated": "node src/aggregated-notification-type.js",
-    "immediate": "node src/immediate-notification.js",
-    "rendering": "node src/variable-rendering.js"
+    "config:standard-type": "node src/standard-notification-type.js",
+    "config:aggregated-type": "node src/aggregated-notification-type.js",
+    "send:immediate": "node src/immediate-notification.js",
+    "send:variable-rendering": "node src/variable-rendering.js",
+    "send:legacy-aggregation": "node src/legacy-aggregation.js"
   }
 }

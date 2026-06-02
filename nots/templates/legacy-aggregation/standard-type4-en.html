@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title th:remove="all">Standard part — Type 4 (weekly) — EN</title>
+  </head>
+  <body>
+    <!--/*@thymesVar id="recipientName" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="orderLabel" type="java.lang.String"*/-->
+    <!--/*@thymesVar id="note" type="java.lang.String"*/-->
+    <div style="border:1px solid #c0392b; border-radius:6px; padding:12px; margin:10px 0;">
+      <p style="margin:0 0 6px; font-weight:bold; color:#c0392b;">
+        STANDARD PART · Notification Type 4 "Financial Health (WEEKLY)" · Language: EN (only language available)
+      </p>
+      <p style="margin:2px 0;">From order: <span th:text="${orderLabel}">order</span></p>
+      <p style="margin:2px 0;">For recipient: <span th:text="${recipientName}">recipient</span></p>
+      <p style="margin:2px 0;">Note: <span th:text="${note}">note</span></p>
+    </div>
+  </body>
+</html>

@@ -27,11 +27,76 @@ const ORDER_POLL_INTERVAL_MS = 5_000;
 // seconds early — or, after truncation, a whole minute early.
 const SCHEDULE_SAFETY_MS = 30_000;
 
+// Maps JS Date.getUTCDay() (0=Sunday..6=Saturday) to the java.time.DayOfWeek names
+// the schedule API expects.
+const DAY_OF_WEEK_NAMES = ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"];
+
 const pigeon = createClient(BASE_URL);
 
+// ── Notification types ────────────────────────────────────────
+// Type 1/2 are DAILY, Type 3/4 are WEEKLY. Type 3 mirrors Type 1 and Type 4 mirrors
+// Type 2, so every recipient receives BOTH a daily digest and a weekly digest (each
+// timing is buffered and flushed independently by the scheduler).
+//   • standardLanguages    — languages with a STANDARD (per-order) template
+//   • ownAggregateLanguages — languages with the type's OWN AGGREGATE wrapper; when a
+//     digest bundles a single type that has one, it overrides the global wrapper
+const TYPE_DEFS = {
+  type1: {
+    key: "type1",
+    label: "Type1 Stock Valuation (daily)",
+    timing: "DAILY",
+    senderName: "Pigeon Legacy Aggregation — Type 1 (daily)",
+    standardLanguages: ["en", "de", "pl"],
+    ownAggregateLanguages: ["en"],
+    templates: [
+      { name: "Type1 Standard EN", language: "en", type: "STANDARD", subject: "STD · Type1 Stock Valuation (daily) · EN · [[${orderLabel}]]", file: "standard-type1-en.html" },
+      { name: "Type1 Standard DE", language: "de", type: "STANDARD", subject: "STD · Typ1 Stock Valuation (daily) · DE · [[${orderLabel}]]", file: "standard-type1-de.html" },
+      { name: "Type1 Standard PL", language: "pl", type: "STANDARD", subject: "STD · Typ1 Stock Valuation (daily) · PL · [[${orderLabel}]]", file: "standard-type1-pl.html" },
+      { name: "Type1 Aggregate EN", language: "en", type: "AGGREGATE", aggregationDisplayType: "STANDARD", subject: "DAILY DIGEST · Type1 OWN aggregate template · EN", file: "aggregate-type1-en.html" },
+    ],
+  },
+  type2: {
+    key: "type2",
+    label: "Type2 Financial Health (daily)",
+    timing: "DAILY",
+    senderName: "Pigeon Legacy Aggregation — Type 2 (daily)",
+    standardLanguages: ["en"],
+    ownAggregateLanguages: [],
+    templates: [
+      { name: "Type2 Standard EN", language: "en", type: "STANDARD", subject: "STD · Type2 Financial Health (daily) · EN · [[${orderLabel}]]", file: "standard-type2-en.html" },
+    ],
+  },
+  type3: {
+    key: "type3",
+    label: "Type3 Stock Valuation (weekly)",
+    timing: "WEEKLY",
+    senderName: "Pigeon Legacy Aggregation — Type 3 (weekly)",
+    standardLanguages: ["en", "de", "pl"],
+    ownAggregateLanguages: ["en"],
+    templates: [
+      { name: "Type3 Standard EN", language: "en", type: "STANDARD", subject: "STD · Type3 Stock Valuation (weekly) · EN · [[${orderLabel}]]", file: "standard-type3-en.html" },
+      { name: "Type3 Standard DE", language: "de", type: "STANDARD", subject: "STD · Typ3 Stock Valuation (weekly) · DE · [[${orderLabel}]]", file: "standard-type3-de.html" },
+      { name: "Type3 Standard PL", language: "pl", type: "STANDARD", subject: "STD · Typ3 Stock Valuation (weekly) · PL · [[${orderLabel}]]", file: "standard-type3-pl.html" },
+      { name: "Type3 Aggregate EN", language: "en", type: "AGGREGATE", aggregationDisplayType: "STANDARD", subject: "WEEKLY DIGEST · Type3 OWN aggregate template · EN", file: "aggregate-type3-en.html" },
+    ],
+  },
+  type4: {
+    key: "type4",
+    label: "Type4 Financial Health (weekly)",
+    timing: "WEEKLY",
+    senderName: "Pigeon Legacy Aggregation — Type 4 (weekly)",
+    standardLanguages: ["en"],
+    ownAggregateLanguages: [],
+    templates: [
+      { name: "Type4 Standard EN", language: "en", type: "STANDARD", subject: "STD · Type4 Financial Health (weekly) · EN · [[${orderLabel}]]", file: "standard-type4-en.html" },
+    ],
+  },
+};
+
 // ── Recipients ────────────────────────────────────────────────
-// Each recipient has a different preferred-language order and a schedule that
-// fires N minutes from now, so the three aggregated emails arrive one minute apart.
+// Each recipient has a different preferred-language order and a schedule that fires
+// N minutes from now, so the digests arrive one minute apart. Daily and weekly fire
+// at the same instant per recipient but as two separate emails.
 const RECIPIENTS = [
   {
     key: "EN",
@@ -61,24 +126,40 @@ const RECIPIENTS = [
 
 const EXTERNAL_ID_SOURCE = "BMP";
 
+// The six daily orders (NT1/NT2) and their weekly mirror (NT3/NT4).
+const ALL_ORDERS = [
+  { index: 1, type: "type1", recipientKeys: ["EN", "DE", "PL"] },
+  { index: 2, type: "type1", recipientKeys: ["PL"] },
+  { index: 3, type: "type2", recipientKeys: ["PL"] },
+  { index: 4, type: "type1", recipientKeys: ["DE"] },
+  { index: 5, type: "type2", recipientKeys: ["PL", "DE"] },
+  { index: 6, type: "type1", recipientKeys: ["EN"] },
+  { index: 7, type: "type3", recipientKeys: ["EN", "DE", "PL"] },
+  { index: 8, type: "type3", recipientKeys: ["PL"] },
+  { index: 9, type: "type4", recipientKeys: ["PL"] },
+  { index: 10, type: "type3", recipientKeys: ["DE"] },
+  { index: 11, type: "type4", recipientKeys: ["PL", "DE"] },
+  { index: 12, type: "type3", recipientKeys: ["EN"] },
+];
+
 async function run() {
   console.log(`\nPigeon API: ${BASE_URL}\n`);
 
   // Global templates live under /public/api and require a JWT with the
   // "roleNotificationContentManager" authority. The /private endpoints used by the
   // rest of the test are open, so without a token we still run the EN recipient's
-  // digest (single notification type → Type 1's OWN AGGREGATE template, no global
-  // needed) and skip the DE/PL digests, which span two types and can only be
-  // wrapped by a global template.
+  // digests (single notification type → the type's OWN AGGREGATE template, no global
+  // needed) and skip the DE/PL digests, which span two types and can only be wrapped
+  // by a global template.
   const fullScenario = Boolean(GLOBAL_TOKEN);
   const activeRecipients = fullScenario ? RECIPIENTS : RECIPIENTS.filter((recipient) => recipient.key === "EN");
 
   if (fullScenario) {
-    console.log("Mode: FULL — PIGEON_BEARER_TOKEN present, exercising EN, DE and PL digests.\n");
+    console.log("Mode: FULL — PIGEON_BEARER_TOKEN present, exercising EN, DE and PL digests (daily + weekly).\n");
   } else {
     console.log(
       "Mode: REDUCED — PIGEON_BEARER_TOKEN not set.\n" +
-        "  • Running only the EN recipient (single-type digest via /private, no token needed).\n" +
+        "  • Running only the EN recipient (single-type digests via /private, no token needed).\n" +
         "  • Skipping global templates and the DE/PL multi-type digests, which require a\n" +
         "    /public/api/global-templates token (JWT with roleNotificationContentManager).\n" +
         "  • Set PIGEON_BEARER_TOKEN to run the full scenario.\n"
@@ -87,8 +168,7 @@ async function run() {
 
   const created = {
     recipientIds: {},
-    type1Id: null,
-    type2Id: null,
+    typeIds: {},
     globalTemplateIds: [],
   };
 
@@ -108,72 +188,36 @@ async function run() {
       ok(`Recipient ${recipient.key}: ${result.id}`);
     }
 
-    // ── 2. Notification Type 1 "Stock Valuation" — STANDARD pl/en/de + AGGREGATE en ──
-    step('Create Notification Type 1 "Stock Valuation" (EMAIL, DAILY)');
-    const type1 = await pigeon.createLegacy({
-      name: `Stock Valuation (legacy-agg) ${Date.now()}`,
-      channel: "EMAIL",
-      senderName: "Pigeon Legacy Aggregation — Type 1",
-      defaultTiming: "DAILY",
-    });
-    created.type1Id = type1.id;
-    ok(`Type 1: ${type1.id}`);
+    // ── 2. Create the four notification types with their templates ──
+    for (const def of Object.values(TYPE_DEFS)) {
+      step(`Create ${def.label} (EMAIL, ${def.timing})`);
+      const type = await pigeon.createLegacy({
+        name: `${def.label} ${Date.now()}`,
+        channel: "EMAIL",
+        senderName: def.senderName,
+        defaultTiming: def.timing,
+      });
+      created.typeIds[def.key] = type.id;
+      ok(`${def.label}: ${type.id}`);
 
-    let type1Version = type1.version;
-    type1Version = await addLegacyTemplate(type1.id, type1Version, {
-      name: "Type1 Standard EN",
-      language: "en",
-      type: "STANDARD",
-      subject: "STD · Type1 Stock Valuation · EN · [[${orderLabel}]]",
-      contentPath: resolve(TEMPLATES_DIR, "standard-type1-en.html"),
-    });
-    type1Version = await addLegacyTemplate(type1.id, type1Version, {
-      name: "Type1 Standard DE",
-      language: "de",
-      type: "STANDARD",
-      subject: "STD · Typ1 Stock Valuation · DE · [[${orderLabel}]]",
-      contentPath: resolve(TEMPLATES_DIR, "standard-type1-de.html"),
-    });
-    type1Version = await addLegacyTemplate(type1.id, type1Version, {
-      name: "Type1 Standard PL",
-      language: "pl",
-      type: "STANDARD",
-      subject: "STD · Typ1 Stock Valuation · PL · [[${orderLabel}]]",
-      contentPath: resolve(TEMPLATES_DIR, "standard-type1-pl.html"),
-    });
-    type1Version = await addLegacyTemplate(type1.id, type1Version, {
-      name: "Type1 Aggregate EN",
-      language: "en",
-      type: "AGGREGATE",
-      aggregationDisplayType: "STANDARD",
-      subject: "DIGEST · Type1 OWN aggregate template · EN",
-      contentPath: resolve(TEMPLATES_DIR, "aggregate-type1-en.html"),
-    });
-    ok("Type 1 templates added: STANDARD [en, de, pl] + AGGREGATE [en]");
+      let version = type.version;
+      for (const template of def.templates) {
+        version = await addLegacyTemplate(type.id, version, {
+          name: template.name,
+          language: template.language,
+          type: template.type,
+          aggregationDisplayType: template.aggregationDisplayType,
+          subject: template.subject,
+          contentPath: resolve(TEMPLATES_DIR, template.file),
+        });
+      }
+      const summary = def.templates.map((t) => `${t.type}/${t.language}`).join(", ");
+      ok(`${def.label} templates added: ${summary}`);
+    }
 
-    // ── 3. Notification Type 2 "Financial Health" — STANDARD en only ──
-    step('Create Notification Type 2 "Financial Health" (EMAIL, DAILY)');
-    const type2 = await pigeon.createLegacy({
-      name: `Financial Health (legacy-agg) ${Date.now()}`,
-      channel: "EMAIL",
-      senderName: "Pigeon Legacy Aggregation — Type 2",
-      defaultTiming: "DAILY",
-    });
-    created.type2Id = type2.id;
-    ok(`Type 2: ${type2.id}`);
-
-    await addLegacyTemplate(type2.id, type2.version, {
-      name: "Type2 Standard EN",
-      language: "en",
-      type: "STANDARD",
-      subject: "STD · Type2 Financial Health · EN · [[${orderLabel}]]",
-      contentPath: resolve(TEMPLATES_DIR, "standard-type2-en.html"),
-    });
-    ok("Type 2 templates added: STANDARD [en]");
-
-    // ── 4. Global aggregate templates en/de/pl (fallback wrapper for multi-type digests) ──
+    // ── 3. Global aggregate templates en/de/pl (wrapper for multi-type digests) ──
     if (fullScenario) {
-      step("Create GLOBAL aggregate templates [en, de, pl]");
+      step("Create GLOBAL aggregate templates [en, de, pl] (shared by daily and weekly multi-type digests)");
       for (const language of ["en", "de", "pl"]) {
         const globalTemplate = await pigeon.addGlobalTemplate({
           name: `legacy-agg-global-${language}-${Date.now()}`,
@@ -191,8 +235,9 @@ async function run() {
       step("Skip GLOBAL aggregate templates (no token — DE/PL multi-type digests are not run)");
     }
 
-    // ── 5. Set recipient schedules (fresh, so the offsets are measured from now) ──
-    step("Set recipient schedules (fire ~1 / 2 / 3 minutes from now, UTC)");
+    // ── 4. Set recipient schedules: fire ~1/2/3 min from now, with today as the
+    //        last (and only) scheduled day so the WEEKLY digest also fires today ──
+    step("Set recipient schedules (fire ~1 / 2 / 3 minutes from now, today as the weekly send day, UTC)");
     // Anchor every schedule to the start of the current minute, then add the offset,
     // so recipient times are exactly currentMinute + 1/2/3. If that would put the
     // earliest one too close to now, bump the whole anchor forward by one minute.
@@ -203,44 +248,40 @@ async function run() {
     }
     for (const recipient of activeRecipients) {
       const fireAt = new Date(anchorMs + recipient.offsetMinutes * 60_000);
+      // daysOfWeek is derived from the actual fire day so the weekly send day is
+      // "today", and nextOrSame(today) + the unelapsed send hour fire it now.
+      const sendDay = DAY_OF_WEEK_NAMES[fireAt.getUTCDay()];
       const schedule = {
         hour: fireAt.getUTCHours(),
         minute: fireAt.getUTCMinutes(),
         timeZone: "UTC",
+        daysOfWeek: [sendDay],
       };
       await pigeon.setRecipientSchedule(recipient.id, schedule);
       recipient.fireAtUtc = `${pad2(schedule.hour)}:${pad2(schedule.minute)} UTC`;
+      recipient.sendDay = sendDay;
       recipient.firesInSeconds = Math.round((fireAt.getTime() - Date.now()) / 1000);
-      ok(`${recipient.key} → ${recipient.fireAtUtc} (~${recipient.firesInSeconds}s from now)`);
+      ok(`${recipient.key} → ${recipient.fireAtUtc} on ${sendDay} (~${recipient.firesInSeconds}s from now)`);
     }
 
-    // ── 6. Define the six notification orders ─────────────────────
-    const allOrders = [
-      { index: 1, type: "type1", typeId: type1.id, recipientKeys: ["EN", "DE", "PL"] },
-      { index: 2, type: "type1", typeId: type1.id, recipientKeys: ["PL"] },
-      { index: 3, type: "type2", typeId: type2.id, recipientKeys: ["PL"] },
-      { index: 4, type: "type1", typeId: type1.id, recipientKeys: ["DE"] },
-      { index: 5, type: "type2", typeId: type2.id, recipientKeys: ["PL", "DE"] },
-      { index: 6, type: "type1", typeId: type1.id, recipientKeys: ["EN"] },
-    ];
-
-    // Keep only recipients we actually created; drop orders left without any.
+    // ── 5. Keep only recipients we actually created; drop empty orders ──
     const activeKeys = new Set(activeRecipients.map((recipient) => recipient.key));
-    const orders = allOrders
-      .map((order) => ({ ...order, recipientKeys: order.recipientKeys.filter((key) => activeKeys.has(key)) }))
-      .filter((order) => order.recipientKeys.length > 0);
+    const orders = ALL_ORDERS.map((order) => ({
+      ...order,
+      recipientKeys: order.recipientKeys.filter((key) => activeKeys.has(key)),
+    })).filter((order) => order.recipientKeys.length > 0);
 
     printExpectations(orders, activeRecipients);
 
-    // ── 7. Post the orders (timing DEFAULT → uses each type's DAILY timing) ──
+    // ── 6. Post the orders (timing DEFAULT → uses each type's DAILY/WEEKLY timing) ──
     const orderIds = [];
     for (const order of orders) {
-      const typeLabel = order.type === "type1" ? "Type1 Stock Valuation" : "Type2 Financial Health";
-      const orderLabel = `Order ${order.index} · ${typeLabel} · → ${order.recipientKeys.join("+")}`;
+      const def = TYPE_DEFS[order.type];
+      const orderLabel = `Order ${order.index} · ${def.label} · → ${order.recipientKeys.join("+")}`;
       step(`Post ${orderLabel}`);
       const recipients = order.recipientKeys.map((key) => recipientInput(key));
       const result = await pigeon.createNotificationOrder({
-        notificationTypeId: order.typeId,
+        notificationTypeId: created.typeIds[order.type],
         recipients,
         tags: [TAG],
         sender: SENDER_EMAIL,
@@ -254,8 +295,8 @@ async function run() {
       ok(`Accepted: ${result.id} (status: ${result.status ?? "n/a"})`);
     }
 
-    // ── 8. Wait for the scheduler to flush every order ────────────
-    step("Wait for the scheduler to flush all aggregated digests");
+    // ── 7. Wait for the scheduler to flush every order ────────────
+    step("Wait for the scheduler to flush all aggregated digests (daily + weekly)");
     console.log(
       "  Digests fire at the recipients' scheduled times (≈ +1 / +2 / +3 min). " +
         "Polling order statuses until all are PROCESSED…"
@@ -266,7 +307,7 @@ async function run() {
   }
 
   console.log(`\n${"═".repeat(115)}`);
-  console.log("  Done — legacy aggregation scenario complete");
+  console.log("  Done — legacy aggregation scenario complete (daily + weekly)");
   console.log(`${"═".repeat(115)}\n`);
 }
 
@@ -279,49 +320,57 @@ function recipientInput(key) {
 }
 
 // Mirrors the backend aggregation rules so the console states exactly what each
-// recipient should receive: which wrapper template, and how many standard parts
-// in which language.
+// recipient should receive per timing: which wrapper template, and how many standard
+// parts in which language. Daily and weekly are independent digests.
 function printExpectations(orders, recipients) {
   console.log(`\n${"#".repeat(115)}`);
   console.log("# EXPECTED EMAILS PER RECIPIENT (verify these against the received inboxes)");
+  console.log("# Each recipient receives TWO digests: one DAILY (Type1/Type2) and one WEEKLY (Type3/Type4).");
   console.log(`${"#".repeat(115)}`);
 
-  const type1Languages = ["en", "de", "pl"];
-  const type2Languages = ["en"];
-
   for (const recipient of recipients) {
-    const suborders = orders.filter((order) => order.recipientKeys.includes(recipient.key));
-    const distinctTypes = [...new Set(suborders.map((order) => order.type))];
-    const singleType = distinctTypes.length === 1;
-
-    let wrapper;
-    if (suborders.length === 1) {
-      wrapper = "NONE — a single pending part means a plain standard email, not a digest";
-    } else if (singleType && distinctTypes[0] === "type1") {
-      wrapper = `Type 1 OWN aggregate template (language: ${pickLanguage(recipient.languages, ["en"])})`;
-    } else {
-      wrapper = `GLOBAL aggregate template (language: ${pickLanguage(recipient.languages, ["en", "de", "pl"])})`;
-    }
-
-    const parts = suborders.map((order) => {
-      const available = order.type === "type1" ? type1Languages : type2Languages;
-      const lang = pickLanguage(recipient.languages, available);
-      const typeLabel = order.type === "type1" ? "Type1 Stock Valuation" : "Type2 Financial Health";
-      return `Order ${order.index} → ${typeLabel} standard part in ${lang.toUpperCase()}`;
-    });
-
     console.log(`\n  ┌─ Recipient ${recipient.key} — "${recipient.name}"`);
     console.log(`  • preferred languages: [${recipient.languages.join(", ")}]`);
     console.log(
-      `  • schedule: ${recipient.fireAtUtc ?? "n/a"}` +
+      `  • schedule: ${recipient.fireAtUtc ?? "n/a"} on ${recipient.sendDay ?? "n/a"}` +
         (recipient.firesInSeconds != null ? ` (~${recipient.firesInSeconds}s from now)` : "")
     );
-    console.log(`  • receives: ${suborders.length === 1 ? "1 standard email" : "1 aggregated digest email"}`);
-    console.log(`  • wrapper template: ${wrapper}`);
-    console.log(`  • standard parts (${parts.length}):`);
-    for (const part of parts) console.log(`      - ${part}`);
+
+    for (const timing of ["DAILY", "WEEKLY"]) {
+      const suborders = orders.filter(
+        (order) => order.recipientKeys.includes(recipient.key) && TYPE_DEFS[order.type].timing === timing
+      );
+      if (suborders.length === 0) continue;
+      const { wrapper, parts } = describeDigest(suborders, recipient);
+      console.log(`\n  ▼ ${timing} email — ${suborders.length === 1 ? "1 standard email" : "1 aggregated digest email"}`);
+      console.log(`     • wrapper template: ${wrapper}`);
+      console.log(`     • standard parts (${parts.length}):`);
+      for (const part of parts) console.log(`         - ${part}`);
+    }
   }
   console.log("");
+}
+
+function describeDigest(suborders, recipient) {
+  const distinctTypes = [...new Set(suborders.map((order) => order.type))];
+
+  let wrapper;
+  if (suborders.length === 1) {
+    wrapper = "NONE — a single pending part means a plain standard email, not a digest";
+  } else if (distinctTypes.length === 1 && TYPE_DEFS[distinctTypes[0]].ownAggregateLanguages.length > 0) {
+    const def = TYPE_DEFS[distinctTypes[0]];
+    wrapper = `${def.label} OWN aggregate template (language: ${pickLanguage(recipient.languages, def.ownAggregateLanguages)})`;
+  } else {
+    wrapper = `GLOBAL aggregate template (language: ${pickLanguage(recipient.languages, ["en", "de", "pl"])})`;
+  }
+
+  const parts = suborders.map((order) => {
+    const def = TYPE_DEFS[order.type];
+    const lang = pickLanguage(recipient.languages, def.standardLanguages);
+    return `Order ${order.index} → ${def.label} standard part in ${lang.toUpperCase()}`;
+  });
+
+  return { wrapper, parts };
 }
 
 // First preferred language that has a template available, else first available
@@ -376,7 +425,7 @@ async function cleanup(created) {
   for (const id of created.globalTemplateIds) {
     await safe(`Delete global template ${id}`, () => pigeon.deleteGlobalTemplate(id, GLOBAL_TOKEN));
   }
-  for (const typeId of [created.type1Id, created.type2Id]) {
+  for (const typeId of Object.values(created.typeIds)) {
     if (!typeId) continue;
     await safe(`Delete notification type ${typeId}`, async () => {
       const current = await pigeon.findLegacy(typeId);

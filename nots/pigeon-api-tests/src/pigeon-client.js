@@ -207,9 +207,9 @@ export function createClient(
     return request("GET", `${RECIPIENTS_BASE}/${id}`);
   }
 
-  async function setRecipientSchedule(id, { hour, minute, timeZone } = {}) {
+  async function setRecipientSchedule(id, { hour, minute, timeZone, daysOfWeek } = {}) {
     return request("PUT", `${RECIPIENTS_BASE}/${id}/schedule`, {
-      body: { hour, minute, timeZone },
+      body: { hour, minute, timeZone, daysOfWeek },
     });
   }
 

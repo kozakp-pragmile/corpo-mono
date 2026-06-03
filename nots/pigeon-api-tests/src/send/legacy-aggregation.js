@@ -17,6 +17,15 @@ const GLOBAL_TOKEN = process.env.PIGEON_BEARER_TOKEN || DEFAULT_BEARER_TOKEN;
 const SENDER_EMAIL = "sender@no-reply.com";
 const TAG = "pigeon-api-tests-legacy-aggregation";
 
+// Seeded singleton "default" aggregated notification type. Its templates are the
+// lowest-priority wrapper for multi-type digests (global templates override them per
+// language). Reached via /private, so no bearer token is needed.
+const DEFAULT_AGGREGATED_NOTIFICATION_TYPE_ID = "ANT-00000000-0000-0000-0000-000000000001";
+// Multi-type digest wrappers: EN/DE come from /public global templates, PL comes from
+// the default aggregated notification type (in CKEditor adjustable-table format).
+const GLOBAL_WRAPPER_LANGUAGES = ["en", "de"];
+const DEFAULT_ANT_WRAPPER_LANGUAGES = ["pl"];
+
 // Aggregation is flushed by a background scheduler at each recipient's scheduled
 // time — there is no manual trigger. The latest recipient fires at +3 minutes, so
 // allow a comfortable margin on top.
@@ -145,12 +154,11 @@ const ALL_ORDERS = [
 async function run() {
   console.log(`\nPigeon API: ${BASE_URL}\n`);
 
-  // Global templates live under /public/api and require a JWT with the
-  // "roleNotificationContentManager" authority. The /private endpoints used by the
-  // rest of the test are open, so without a token we still run the EN recipient's
-  // digests (single notification type → the type's OWN AGGREGATE template, no global
-  // needed) and skip the DE/PL digests, which span two types and can only be wrapped
-  // by a global template.
+  // Multi-type digests need a wrapper template: the DE wrapper is a global template
+  // (/public/api, requires a JWT with "roleNotificationContentManager"), the PL
+  // wrapper lives on the default aggregated notification type (/private, no token).
+  // Without a token we run only the EN recipient (single notification type → the
+  // type's OWN AGGREGATE template, no wrapper lookup needed) and skip DE/PL.
   const fullScenario = Boolean(GLOBAL_TOKEN);
   const activeRecipients = fullScenario ? RECIPIENTS : RECIPIENTS.filter((recipient) => recipient.key === "EN");
 
@@ -170,6 +178,7 @@ async function run() {
     recipientIds: {},
     typeIds: {},
     globalTemplateIds: [],
+    antTemplateIds: [],
   };
 
   try {
@@ -215,10 +224,13 @@ async function run() {
       ok(`${def.label} templates added: ${summary}`);
     }
 
-    // ── 3. Global aggregate templates en/de/pl (wrapper for multi-type digests) ──
+    // ── 3. Multi-type digest wrappers: GLOBAL [en, de] + DEFAULT ANT [pl] ──
+    // EN/DE wrappers are global templates (/public, THYMELEAF). PL is defined on the
+    // DEFAULT aggregated notification type in CKEditor adjustable-table format: there
+    // is NO {{#messages}} loop — the service injects it around the prototype <tr>.
     if (fullScenario) {
-      step("Create GLOBAL aggregate templates [en, de, pl] (shared by daily and weekly multi-type digests)");
-      for (const language of ["en", "de", "pl"]) {
+      step("Create GLOBAL aggregate templates [en, de] (THYMELEAF, shared by daily and weekly multi-type digests)");
+      for (const language of GLOBAL_WRAPPER_LANGUAGES) {
         const globalTemplate = await pigeon.addGlobalTemplate({
           name: `legacy-agg-global-${language}-${Date.now()}`,
           language,
@@ -231,8 +243,19 @@ async function run() {
         created.globalTemplateIds.push(globalTemplate.id);
         ok(`Global aggregate ${language.toUpperCase()}: ${globalTemplate.id}`);
       }
+
+      step("Create PL wrapper on the DEFAULT aggregated notification type (CKEDITOR adjustable-table, no loop)");
+      const antPl = await pigeon.addAggregatedTemplate(DEFAULT_AGGREGATED_NOTIFICATION_TYPE_ID, {
+        name: `legacy-agg-default-ant-pl-${Date.now()}`,
+        language: "pl",
+        syntax: "CKEDITOR",
+        subject: "DIGEST · DEFAULT aggregated notification type · PL",
+        contentPath: resolve(TEMPLATES_DIR, "default-ant-aggregate-pl.html"),
+      });
+      created.antTemplateIds.push(antPl.templateId);
+      ok(`Default ANT aggregate PL: ${antPl.templateId}`);
     } else {
-      step("Skip GLOBAL aggregate templates (no token — DE/PL multi-type digests are not run)");
+      step("Skip multi-type wrappers (no token — DE/PL multi-type digests are not run)");
     }
 
     // ── 4. Set recipient schedules: fire ~1/2/3 min from now, with today as the
@@ -361,7 +384,11 @@ function describeDigest(suborders, recipient) {
     const def = TYPE_DEFS[distinctTypes[0]];
     wrapper = `${def.label} OWN aggregate template (language: ${pickLanguage(recipient.languages, def.ownAggregateLanguages)})`;
   } else {
-    wrapper = `GLOBAL aggregate template (language: ${pickLanguage(recipient.languages, ["en", "de", "pl"])})`;
+    const lang = pickLanguage(recipient.languages, ["en", "de", "pl"]);
+    const source = DEFAULT_ANT_WRAPPER_LANGUAGES.includes(lang)
+      ? "DEFAULT aggregated notification type · CKEditor adjustable-table"
+      : "GLOBAL aggregate template";
+    wrapper = `${source} (language: ${lang})`;
   }
 
   const parts = suborders.map((order) => {
@@ -424,6 +451,11 @@ async function cleanup(created) {
 
   for (const id of created.globalTemplateIds) {
     await safe(`Delete global template ${id}`, () => pigeon.deleteGlobalTemplate(id, GLOBAL_TOKEN));
+  }
+  for (const id of created.antTemplateIds) {
+    await safe(`Remove default ANT template ${id}`, () =>
+      pigeon.removeAggregatedTemplate(DEFAULT_AGGREGATED_NOTIFICATION_TYPE_ID, id)
+    );
   }
   for (const typeId of Object.values(created.typeIds)) {
     if (!typeId) continue;

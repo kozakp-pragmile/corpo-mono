@@ -2,6 +2,9 @@ const COL_WIDTH = 56;
 const GUTTER = " │ ";
 const TOTAL = COL_WIDTH * 2 + GUTTER.length;
 
+let passed = 0;
+let failed = 0;
+
 export function step(label) {
   console.log(`\n${"─".repeat(TOTAL)}`);
   console.log(`▸ ${label}`);
@@ -9,11 +12,25 @@ export function step(label) {
 }
 
 export function ok(msg) {
+  passed++;
   console.log(`  ✓ ${msg}`);
 }
 
 export function fail(msg) {
+  failed++;
   console.error(`  ✗ ${msg}`);
+}
+
+// Prints a final tally of ✓/✗ and returns true when nothing failed, so callers
+// can set the process exit code accordingly.
+export function summary(title) {
+  const allOk = failed === 0;
+  console.log(`\n${"═".repeat(TOTAL)}`);
+  console.log(`  Summary — ${title}`);
+  console.log(`  ✓ ${passed} passed   ✗ ${failed} failed`);
+  console.log(`  ${allOk ? "✓ ALL EXPECTED OUTCOMES MET" : "✗ SOME EXPECTED OUTCOMES MISSING"}`);
+  console.log(`${"═".repeat(TOTAL)}\n`);
+  return allOk;
 }
 
 function prettyLines(obj) {

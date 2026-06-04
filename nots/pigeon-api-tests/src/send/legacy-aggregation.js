@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
 import { createClient } from "../pigeon-client.js";
-import { step, ok, fail } from "../log.js";
+import { step, ok, fail, summary } from "../log.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates", "legacy-aggregation");
@@ -329,9 +329,9 @@ async function run() {
     await cleanup(created);
   }
 
-  console.log(`\n${"═".repeat(115)}`);
-  console.log("  Done — legacy aggregation scenario complete (daily + weekly)");
-  console.log(`${"═".repeat(115)}\n`);
+  if (!summary("legacy aggregation scenario (daily + weekly)")) {
+    process.exitCode = 1;
+  }
 }
 
 function recipientInput(key) {

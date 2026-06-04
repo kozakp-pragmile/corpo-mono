@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { resolve, dirname } from "node:path";
 import { createClient } from "../pigeon-client.js";
-import { step, ok, fail, json } from "../log.js";
+import { step, ok, fail, json, summary } from "../log.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates");
@@ -115,9 +115,9 @@ async function run() {
     await runSyntax(syntax);
   }
 
-  console.log(`\n${"═".repeat(115)}`);
-  console.log("  Done — variable rendering scenarios complete");
-  console.log(`${"═".repeat(115)}\n`);
+  if (!summary("variable rendering scenarios")) {
+    process.exitCode = 1;
+  }
 }
 
 async function runSyntax({ syntax, subject, contentPath }) {

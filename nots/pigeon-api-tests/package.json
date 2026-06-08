@@ -13,6 +13,7 @@
     "send:immediate-notification": "node src/send/immediate-notification.js",
     "send:variable-rendering": "node src/send/variable-rendering.js",
     "send:aggregated-digest-thymeleaf": "node src/send/aggregated-digest-thymeleaf.js",
-    "send:aggregated-digest-ckeditor": "node src/send/aggregated-digest-ckeditor.js"
+    "send:aggregated-digest-ckeditor": "node src/send/aggregated-digest-ckeditor.js",
+    "send:aggregation-snt-ant-ckeditor": "node src/send/aggregation-snt-ant-ckeditor.js"
   }
 }

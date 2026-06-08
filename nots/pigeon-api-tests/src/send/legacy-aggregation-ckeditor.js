@@ -4,7 +4,7 @@ import { createClient } from "../pigeon-client.js";
 import { step, ok, fail, summary } from "../log.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates", "legacy-aggregation");
+const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates", "legacy-aggregation-ckeditor");
 
 const BASE_URL = process.env.PIGEON_URL || "http://localhost:8086/pigeon/server";
 // Global templates live under /public/api and require a bearer token (a JWT with
@@ -15,16 +15,27 @@ const DEFAULT_BEARER_TOKEN =
 const GLOBAL_TOKEN = process.env.PIGEON_BEARER_TOKEN || DEFAULT_BEARER_TOKEN;
 
 const SENDER_EMAIL = "sender@no-reply.com";
-const TAG = "pigeon-api-tests-legacy-aggregation";
+const TAG = "pigeon-api-tests-legacy-aggregation-ckeditor";
 
 // Seeded singleton "default" aggregated notification type. Its templates are the
 // lowest-priority wrapper for multi-type digests (global templates override them per
 // language). Reached via /private, so no bearer token is needed.
 const DEFAULT_AGGREGATED_NOTIFICATION_TYPE_ID = "ANT-00000000-0000-0000-0000-000000000001";
 // Multi-type digest wrappers: EN/DE come from /public global templates, PL comes from
-// the default aggregated notification type (in CKEditor adjustable-table format).
+// the default aggregated notification type. ALL wrappers here use frontend-authored
+// CKEditor adjustable formats (table or card) instead of hand-written Thymeleaf —
+// there is NO {{#messages}} loop, the service injects it around the prototype row/card.
 const GLOBAL_WRAPPER_LANGUAGES = ["en", "de"];
 const DEFAULT_ANT_WRAPPER_LANGUAGES = ["pl"];
+
+// The frontend-authored format of each wrapper, used only to label the printed
+// expectations. The format itself is declared by the CSS class inside the HTML.
+const GLOBAL_WRAPPER_FORMAT = { en: "adjustable-table", de: "adjustable-card" };
+const DEFAULT_ANT_WRAPPER_FORMAT = { pl: "adjustable-card" };
+
+// Structure-driven (adjustable) formats describe themselves through their top-level CSS
+// class, so the legacy aggregationDisplayType field is vestigial — the UI sends IRRELEVANT.
+const ADJUSTABLE_DISPLAY_TYPE = "IRRELEVANT";
 
 // Aggregation is flushed by a background scheduler at each recipient's scheduled
 // time — there is no manual trigger. The latest recipient fires at +3 minutes, so
@@ -46,58 +57,62 @@ const pigeon = createClient(BASE_URL);
 // Type 1/2 are DAILY, Type 3/4 are WEEKLY. Type 3 mirrors Type 1 and Type 4 mirrors
 // Type 2, so every recipient receives BOTH a daily digest and a weekly digest (each
 // timing is buffered and flushed independently by the scheduler).
-//   • standardLanguages    — languages with a STANDARD (per-order) template
+//   • standardLanguages    — languages with a STANDARD (per-order) template (CKEditor)
 //   • ownAggregateLanguages — languages with the type's OWN AGGREGATE wrapper; when a
-//     digest bundles a single type that has one, it overrides the global wrapper
+//     digest bundles a single type that has one, it overrides the global wrapper. The
+//     own wrappers here use frontend-authored CKEditor adjustable formats.
+//   • ownAggregateFormat   — the adjustable format used by the own aggregate wrapper
 const TYPE_DEFS = {
   type1: {
     key: "type1",
     label: "Type1 Stock Valuation (daily)",
     timing: "DAILY",
-    senderName: "Pigeon Legacy Aggregation — Type 1 (daily)",
+    senderName: "Pigeon CKEditor Aggregation — Type 1 (daily)",
     standardLanguages: ["en", "de", "pl"],
     ownAggregateLanguages: ["en"],
+    ownAggregateFormat: "adjustable-card",
     templates: [
-      { name: "Type1 Standard EN", language: "en", type: "STANDARD", subject: "STD · Type1 Stock Valuation (daily) · EN · [[${orderLabel}]]", file: "standard-type1-en.html" },
-      { name: "Type1 Standard DE", language: "de", type: "STANDARD", subject: "STD · Typ1 Stock Valuation (daily) · DE · [[${orderLabel}]]", file: "standard-type1-de.html" },
-      { name: "Type1 Standard PL", language: "pl", type: "STANDARD", subject: "STD · Typ1 Stock Valuation (daily) · PL · [[${orderLabel}]]", file: "standard-type1-pl.html" },
-      { name: "Type1 Aggregate EN", language: "en", type: "AGGREGATE", aggregationDisplayType: "STANDARD", subject: "DAILY DIGEST · Type1 OWN aggregate template · EN", file: "aggregate-type1-en.html" },
+      { name: "Type1 Standard EN", language: "en", type: "STANDARD", syntax: "CKEDITOR", subject: "STD · Type1 Stock Valuation (daily) · EN · {{orderLabel}}", file: "standard-type1-en.html" },
+      { name: "Type1 Standard DE", language: "de", type: "STANDARD", syntax: "CKEDITOR", subject: "STD · Typ1 Stock Valuation (daily) · DE · {{orderLabel}}", file: "standard-type1-de.html" },
+      { name: "Type1 Standard PL", language: "pl", type: "STANDARD", syntax: "CKEDITOR", subject: "STD · Typ1 Stock Valuation (daily) · PL · {{orderLabel}}", file: "standard-type1-pl.html" },
+      { name: "Type1 Aggregate EN", language: "en", type: "AGGREGATE", syntax: "CKEDITOR", aggregationDisplayType: ADJUSTABLE_DISPLAY_TYPE, subject: "DAILY DIGEST · Type1 OWN aggregate (adjustable-card) · EN", file: "aggregate-type1-en.html" },
     ],
   },
   type2: {
     key: "type2",
     label: "Type2 Financial Health (daily)",
     timing: "DAILY",
-    senderName: "Pigeon Legacy Aggregation — Type 2 (daily)",
+    senderName: "Pigeon CKEditor Aggregation — Type 2 (daily)",
     standardLanguages: ["en"],
     ownAggregateLanguages: [],
     templates: [
-      { name: "Type2 Standard EN", language: "en", type: "STANDARD", subject: "STD · Type2 Financial Health (daily) · EN · [[${orderLabel}]]", file: "standard-type2-en.html" },
+      { name: "Type2 Standard EN", language: "en", type: "STANDARD", syntax: "CKEDITOR", subject: "STD · Type2 Financial Health (daily) · EN · {{orderLabel}}", file: "standard-type2-en.html" },
     ],
   },
   type3: {
     key: "type3",
     label: "Type3 Stock Valuation (weekly)",
     timing: "WEEKLY",
-    senderName: "Pigeon Legacy Aggregation — Type 3 (weekly)",
+    senderName: "Pigeon CKEditor Aggregation — Type 3 (weekly)",
     standardLanguages: ["en", "de", "pl"],
     ownAggregateLanguages: ["en"],
+    ownAggregateFormat: "adjustable-table",
     templates: [
-      { name: "Type3 Standard EN", language: "en", type: "STANDARD", subject: "STD · Type3 Stock Valuation (weekly) · EN · [[${orderLabel}]]", file: "standard-type3-en.html" },
-      { name: "Type3 Standard DE", language: "de", type: "STANDARD", subject: "STD · Typ3 Stock Valuation (weekly) · DE · [[${orderLabel}]]", file: "standard-type3-de.html" },
-      { name: "Type3 Standard PL", language: "pl", type: "STANDARD", subject: "STD · Typ3 Stock Valuation (weekly) · PL · [[${orderLabel}]]", file: "standard-type3-pl.html" },
-      { name: "Type3 Aggregate EN", language: "en", type: "AGGREGATE", aggregationDisplayType: "STANDARD", subject: "WEEKLY DIGEST · Type3 OWN aggregate template · EN", file: "aggregate-type3-en.html" },
+      { name: "Type3 Standard EN", language: "en", type: "STANDARD", syntax: "CKEDITOR", subject: "STD · Type3 Stock Valuation (weekly) · EN · {{orderLabel}}", file: "standard-type3-en.html" },
+      { name: "Type3 Standard DE", language: "de", type: "STANDARD", syntax: "CKEDITOR", subject: "STD · Typ3 Stock Valuation (weekly) · DE · {{orderLabel}}", file: "standard-type3-de.html" },
+      { name: "Type3 Standard PL", language: "pl", type: "STANDARD", syntax: "CKEDITOR", subject: "STD · Typ3 Stock Valuation (weekly) · PL · {{orderLabel}}", file: "standard-type3-pl.html" },
+      { name: "Type3 Aggregate EN", language: "en", type: "AGGREGATE", syntax: "CKEDITOR", aggregationDisplayType: ADJUSTABLE_DISPLAY_TYPE, subject: "WEEKLY DIGEST · Type3 OWN aggregate (adjustable-table) · EN", file: "aggregate-type3-en.html" },
     ],
   },
   type4: {
     key: "type4",
     label: "Type4 Financial Health (weekly)",
     timing: "WEEKLY",
-    senderName: "Pigeon Legacy Aggregation — Type 4 (weekly)",
+    senderName: "Pigeon CKEditor Aggregation — Type 4 (weekly)",
     standardLanguages: ["en"],
     ownAggregateLanguages: [],
     templates: [
-      { name: "Type4 Standard EN", language: "en", type: "STANDARD", subject: "STD · Type4 Financial Health (weekly) · EN · [[${orderLabel}]]", file: "standard-type4-en.html" },
+      { name: "Type4 Standard EN", language: "en", type: "STANDARD", syntax: "CKEDITOR", subject: "STD · Type4 Financial Health (weekly) · EN · {{orderLabel}}", file: "standard-type4-en.html" },
     ],
   },
 };
@@ -110,24 +125,24 @@ const RECIPIENTS = [
   {
     key: "EN",
     name: "Emma English (EN recipient)",
-    email: "emma.english.legacy-agg@example.com",
-    externalIdValue: "pigeon-api-tests-legacy-agg-en",
+    email: "emma.english.ckeditor-agg@example.com",
+    externalIdValue: "pigeon-api-tests-ckeditor-agg-en",
     languages: ["en"],
     offsetMinutes: 1,
   },
   {
     key: "DE",
     name: "Dieter Deutsch (DE recipient)",
-    email: "dieter.deutsch.legacy-agg@example.com",
-    externalIdValue: "pigeon-api-tests-legacy-agg-de",
+    email: "dieter.deutsch.ckeditor-agg@example.com",
+    externalIdValue: "pigeon-api-tests-ckeditor-agg-de",
     languages: ["de", "en"],
     offsetMinutes: 2,
   },
   {
     key: "PL",
     name: "Paulina Polski (PL recipient)",
-    email: "paulina.polski.legacy-agg@example.com",
-    externalIdValue: "pigeon-api-tests-legacy-agg-pl",
+    email: "paulina.polski.ckeditor-agg@example.com",
+    externalIdValue: "pigeon-api-tests-ckeditor-agg-pl",
     languages: ["pl", "en"],
     offsetMinutes: 3,
   },
@@ -154,11 +169,11 @@ const ALL_ORDERS = [
 async function run() {
   console.log(`\nPigeon API: ${BASE_URL}\n`);
 
-  // Multi-type digests need a wrapper template: the DE wrapper is a global template
-  // (/public/api, requires a JWT with "roleNotificationContentManager"), the PL
-  // wrapper lives on the default aggregated notification type (/private, no token).
-  // Without a token we run only the EN recipient (single notification type → the
-  // type's OWN AGGREGATE template, no wrapper lookup needed) and skip DE/PL.
+  // Multi-type digests need a wrapper template: the EN/DE wrappers are global templates
+  // (/public/api, requires a JWT with "roleNotificationContentManager"), the PL wrapper
+  // lives on the default aggregated notification type (/private, no token). Without a
+  // token we run only the EN recipient (single notification type → the type's OWN
+  // AGGREGATE template, no wrapper lookup needed) and skip DE/PL.
   const fullScenario = Boolean(GLOBAL_TOKEN);
   const activeRecipients = fullScenario ? RECIPIENTS : RECIPIENTS.filter((recipient) => recipient.key === "EN");
 
@@ -198,6 +213,8 @@ async function run() {
     }
 
     // ── 2. Create the four notification types with their templates ──
+    // STANDARD parts and OWN AGGREGATE wrappers are all CKEditor. The own aggregate
+    // wrappers use frontend-authored adjustable formats (Type1 → card, Type3 → table).
     for (const def of Object.values(TYPE_DEFS)) {
       step(`Create ${def.label} (EMAIL, ${def.timing})`);
       const type = await pigeon.createLegacy({
@@ -215,45 +232,47 @@ async function run() {
           name: template.name,
           language: template.language,
           type: template.type,
+          syntax: template.syntax,
           aggregationDisplayType: template.aggregationDisplayType,
           subject: template.subject,
           contentPath: resolve(TEMPLATES_DIR, template.file),
         });
       }
-      const summary = def.templates.map((t) => `${t.type}/${t.language}`).join(", ");
+      const summary = def.templates.map((t) => `${t.type}/${t.language}/${t.syntax}`).join(", ");
       ok(`${def.label} templates added: ${summary}`);
     }
 
     // ── 3. Multi-type digest wrappers: GLOBAL [en, de] + DEFAULT ANT [pl] ──
-    // EN/DE wrappers are global templates (/public, THYMELEAF). PL is defined on the
-    // DEFAULT aggregated notification type in CKEditor adjustable-table format: there
-    // is NO {{#messages}} loop — the service injects it around the prototype <tr>.
+    // Every wrapper is a frontend-authored CKEditor adjustable format: EN global is a
+    // table, DE global is a card, PL (default ANT) is a card. None declare a loop —
+    // the service injects it at the format's row/card selector.
     if (fullScenario) {
-      step("Create GLOBAL aggregate templates [en, de] (THYMELEAF, shared by daily and weekly multi-type digests)");
+      step("Create GLOBAL aggregate templates [en→table, de→card] (CKEDITOR adjustable, shared by daily and weekly multi-type digests)");
       for (const language of GLOBAL_WRAPPER_LANGUAGES) {
+        const format = GLOBAL_WRAPPER_FORMAT[language];
         const globalTemplate = await pigeon.addGlobalTemplate({
-          name: `legacy-agg-global-${language}-${Date.now()}`,
+          name: `ckeditor-agg-global-${language}-${Date.now()}`,
           language,
-          syntax: "THYMELEAF",
-          subject: `DIGEST · GLOBAL aggregate · ${language.toUpperCase()}`,
-          aggregationDisplayType: "STANDARD",
+          syntax: "CKEDITOR",
+          subject: `DIGEST · GLOBAL ${format} · ${language.toUpperCase()}`,
+          aggregationDisplayType: ADJUSTABLE_DISPLAY_TYPE,
           contentPath: resolve(TEMPLATES_DIR, `global-aggregate-${language}.html`),
           accessToken: GLOBAL_TOKEN,
         });
         created.globalTemplateIds.push(globalTemplate.id);
-        ok(`Global aggregate ${language.toUpperCase()}: ${globalTemplate.id}`);
+        ok(`Global aggregate ${language.toUpperCase()} (${format}): ${globalTemplate.id}`);
       }
 
-      step("Create PL wrapper on the DEFAULT aggregated notification type (CKEDITOR adjustable-table, no loop)");
+      step("Create PL wrapper on the DEFAULT aggregated notification type (CKEDITOR adjustable-card, no loop)");
       const antPl = await pigeon.addAggregatedTemplate(DEFAULT_AGGREGATED_NOTIFICATION_TYPE_ID, {
-        name: `legacy-agg-default-ant-pl-${Date.now()}`,
+        name: `ckeditor-agg-default-ant-pl-${Date.now()}`,
         language: "pl",
         syntax: "CKEDITOR",
-        subject: "DIGEST · DEFAULT aggregated notification type · PL",
+        subject: "DIGEST · DEFAULT aggregated notification type · adjustable-card · PL",
         contentPath: resolve(TEMPLATES_DIR, "default-ant-aggregate-pl.html"),
       });
       created.antTemplateIds.push(antPl.templateId);
-      ok(`Default ANT aggregate PL: ${antPl.templateId}`);
+      ok(`Default ANT aggregate PL (adjustable-card): ${antPl.templateId}`);
     } else {
       step("Skip multi-type wrappers (no token — DE/PL multi-type digests are not run)");
     }
@@ -311,7 +330,7 @@ async function run() {
         timing: "DEFAULT",
         variables: {
           orderLabel,
-          note: `Generated by legacy-aggregation test for recipient(s) ${order.recipientKeys.join(", ")}.`,
+          note: `Generated by legacy-aggregation-ckeditor test for recipient(s) ${order.recipientKeys.join(", ")}.`,
         },
       });
       orderIds.push({ index: order.index, id: result.id, label: orderLabel });
@@ -329,7 +348,7 @@ async function run() {
     await cleanup(created);
   }
 
-  if (!summary("legacy aggregation scenario (daily + weekly)")) {
+  if (!summary("legacy aggregation scenario — ADJUSTABLE CKEditor wrappers (daily + weekly)")) {
     process.exitCode = 1;
   }
 }
@@ -343,12 +362,14 @@ function recipientInput(key) {
 }
 
 // Mirrors the backend aggregation rules so the console states exactly what each
-// recipient should receive per timing: which wrapper template, and how many standard
-// parts in which language. Daily and weekly are independent digests.
+// recipient should receive per timing: which wrapper template (source + adjustable
+// format), and how many standard parts in which language. Daily and weekly are
+// independent digests.
 function printExpectations(orders, recipients) {
   console.log(`\n${"#".repeat(115)}`);
   console.log("# EXPECTED EMAILS PER RECIPIENT (verify these against the received inboxes)");
   console.log("# Each recipient receives TWO digests: one DAILY (Type1/Type2) and one WEEKLY (Type3/Type4).");
+  console.log("# All wrappers are frontend-authored CKEditor adjustable formats (table or card).");
   console.log(`${"#".repeat(115)}`);
 
   for (const recipient of recipients) {
@@ -382,19 +403,22 @@ function describeDigest(suborders, recipient) {
     wrapper = "NONE — a single pending part means a plain standard email, not a digest";
   } else if (distinctTypes.length === 1 && TYPE_DEFS[distinctTypes[0]].ownAggregateLanguages.length > 0) {
     const def = TYPE_DEFS[distinctTypes[0]];
-    wrapper = `${def.label} OWN aggregate template (language: ${pickLanguage(recipient.languages, def.ownAggregateLanguages)})`;
+    const lang = pickLanguage(recipient.languages, def.ownAggregateLanguages);
+    wrapper = `${def.label} OWN aggregate template · CKEditor ${def.ownAggregateFormat} (language: ${lang})`;
   } else {
     const lang = pickLanguage(recipient.languages, ["en", "de", "pl"]);
-    const source = DEFAULT_ANT_WRAPPER_LANGUAGES.includes(lang)
-      ? "DEFAULT aggregated notification type · CKEditor adjustable-table"
+    const fromAnt = DEFAULT_ANT_WRAPPER_LANGUAGES.includes(lang);
+    const format = fromAnt ? DEFAULT_ANT_WRAPPER_FORMAT[lang] : GLOBAL_WRAPPER_FORMAT[lang];
+    const source = fromAnt
+      ? "DEFAULT aggregated notification type"
       : "GLOBAL aggregate template";
-    wrapper = `${source} (language: ${lang})`;
+    wrapper = `${source} · CKEditor ${format} (language: ${lang})`;
   }
 
   const parts = suborders.map((order) => {
     const def = TYPE_DEFS[order.type];
     const lang = pickLanguage(recipient.languages, def.standardLanguages);
-    return `Order ${order.index} → ${def.label} standard part in ${lang.toUpperCase()}`;
+    return `Order ${order.index} → ${def.label} standard part (CKEditor) in ${lang.toUpperCase()}`;
   });
 
   return { wrapper, parts };
@@ -408,7 +432,7 @@ function pickLanguage(preferredLanguages, availableLanguages) {
 }
 
 async function addLegacyTemplate(typeId, version, template) {
-  await pigeon.addLegacyTemplate(typeId, { ...template, syntax: "THYMELEAF", version });
+  await pigeon.addLegacyTemplate(typeId, { ...template, version });
   const refreshed = await pigeon.findLegacy(typeId);
   return refreshed.version;
 }

@@ -8,6 +8,7 @@
     "config:aggregated-type": "node src/config/aggregated-notification-type.js",
     "send:immediate": "node src/send/immediate-notification.js",
     "send:variable-rendering": "node src/send/variable-rendering.js",
-    "send:legacy-aggregation": "node src/send/legacy-aggregation.js"
+    "send:legacy-aggregation-thymeleaf": "node src/send/legacy-aggregation-thymeleaf.js",
+    "send:legacy-aggregation-ckeditor": "node src/send/legacy-aggregation-ckeditor.js"
   }
 }

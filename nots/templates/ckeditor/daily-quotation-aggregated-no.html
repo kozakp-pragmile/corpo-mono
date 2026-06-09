@@ -10,27 +10,17 @@
   Kjære {{name}}, her er ditt aggregerte sammendrag for {{quotationDate}}.
 </p>
 <p>
-  Tabellen nedenfor oppsummerer noteringene for verdipapirene du abonnerer
+  Kortene nedenfor oppsummerer noteringene for verdipapirene du abonnerer
   på.
 </p>
 
-<div class="aggregated-messages-in-adjustable-table-format">
-  <table style="width:100%; border-collapse:collapse;">
-    <thead>
-    <tr>
-      <th style="background-color:#0a4f8a; color:white; padding:8px;">Verdipapir</th>
-      <th style="background-color:#0a4f8a; color:white; padding:8px;">Detaljer</th>
-    </tr>
-    </thead>
-    <tbody>
-    {{#messages}}
-    <tr>
-      <td style="border:1px solid #ddd; padding:8px;">{{subject}}</td>
-      <td style="border:1px solid #ddd; padding:8px;">{{{body}}}</td>
-    </tr>
-    {{/messages}}
-    </tbody>
-  </table>
+<div class="aggregated-messages-in-adjustable-card-format">
+  <div style="background:#e5f1fb; border:1px solid #d4e0ee; border-radius:8px; margin:32px auto; padding:24px; font-family:Arial,sans-serif; box-shadow:0 2px 8px rgba(50,50,50,0.04);">
+    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ccd6e2; padding-bottom:12px; margin-bottom:20px;">
+      <span style="font-size:1.5rem; font-weight:bold;">{{subject}}</span>
+    </div>
+    <div style="margin-bottom:14px; font-size:1rem;">{{body}}</div>
+  </div>
 </div>
 
 <p>
@@ -38,7 +28,7 @@
   <em>Corporater-teamet</em>
 </p>
 <p>
-  <img alt="[Corporater logo]" src="https://corporater.com/" data-image-name="owl"/>
+  <img alt="Maskot" src="https://corporater.com/" data-image-name="owl" style="width:160px; height:auto;"/>
 </p>
 </body>
 </html>

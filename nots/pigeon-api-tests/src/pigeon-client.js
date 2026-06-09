@@ -151,7 +151,7 @@ export function createClient(
 
   async function addLegacyTemplate(
     id,
-    { name, language, syntax, type = "STANDARD", aggregationDisplayType, subject, contentPath, contentType, version = 0 } = {}
+    { name, language, syntax, type = "STANDARD", aggregationDisplayType, subject, contentPath, content, contentType, version = 0 } = {}
   ) {
     return request("POST", `${LEGACY_BASE}/${id}/templates`, {
       formData: await buildLegacyTemplateForm({
@@ -162,6 +162,7 @@ export function createClient(
         aggregationDisplayType,
         subject,
         contentPath,
+        content,
         contentType,
         version,
       }),
@@ -174,17 +175,8 @@ export function createClient(
     });
   }
 
-  async function addLegacyImage(id, { name, imagePath, version = 0, contentType } = {}) {
-    return request("POST", `${LEGACY_BASE}/${id}/images`, {
-      formData: await buildImageForm({ name, imagePath, version, contentType }),
-    });
-  }
-
-  async function removeLegacyImage(id, imageId, version) {
-    return request("DELETE", `${LEGACY_BASE}/${id}/images/${imageId}`, {
-      query: { version },
-    });
-  }
+  // Legacy notification types have no per-type image endpoint; images are global
+  // (see Global Images below) and resolved into templates by name at render time.
 
   // ── Recipient Configurations ────────────────────────────────
 
@@ -222,7 +214,7 @@ export function createClient(
   const GLOBAL_TEMPLATES_BASE = "/public/api/global-templates";
 
   async function addGlobalTemplate(
-    { name, language, syntax, subject, contentPath, contentType, aggregationDisplayType = "STANDARD", accessToken } = {}
+    { name, language, syntax, subject, contentPath, content, contentType, aggregationDisplayType = "STANDARD", accessToken } = {}
   ) {
     return request("POST", GLOBAL_TEMPLATES_BASE, {
       formData: await buildGlobalTemplateForm({
@@ -231,6 +223,7 @@ export function createClient(
         syntax,
         subject,
         contentPath,
+        content,
         contentType,
         aggregationDisplayType,
       }),
@@ -249,6 +242,13 @@ export function createClient(
   async function addGlobalImage({ name, imagePath, contentType, accessToken } = {}) {
     return request("POST", GLOBAL_IMAGES_BASE, {
       formData: await buildImageForm({ name, imagePath, contentType }),
+      accessToken,
+    });
+  }
+
+  async function queryGlobalImages({ name, page, size, sortBy, direction, accessToken } = {}) {
+    return request("GET", GLOBAL_IMAGES_BASE, {
+      query: { name, page, size, sortBy, direction },
       accessToken,
     });
   }
@@ -356,8 +356,6 @@ export function createClient(
     deleteLegacy,
     addLegacyTemplate,
     removeLegacyTemplate,
-    addLegacyImage,
-    removeLegacyImage,
     createRecipient,
     findRecipient,
     setRecipientSchedule,
@@ -365,6 +363,7 @@ export function createClient(
     addGlobalTemplate,
     deleteGlobalTemplate,
     addGlobalImage,
+    queryGlobalImages,
     deleteGlobalImage,
     createNotificationOrder,
     findNotificationOrder,
@@ -391,12 +390,14 @@ async function buildGlobalTemplateForm({
   syntax,
   subject,
   contentPath,
+  content,
   contentType,
   aggregationDisplayType,
 }) {
-  const fs = await import("node:fs");
   const path = await import("node:path");
-  const bytes = fs.readFileSync(contentPath);
+  // Either inline `content` (e.g. HTML with a runtime-injected image id) or a file path.
+  const fileName = contentPath ? path.basename(contentPath) : `${name}.html`;
+  const bytes = content !== undefined ? content : (await import("node:fs")).readFileSync(contentPath);
   const file = new Blob([bytes], { type: contentType ?? "text/html" });
   const form = new FormData();
   form.set("name", name);
@@ -404,7 +405,7 @@ async function buildGlobalTemplateForm({
   form.set("syntax", syntax);
   form.set("subject", subject);
   form.set("aggregationDisplayType", aggregationDisplayType);
-  form.set("content", file, path.basename(contentPath));
+  form.set("content", file, fileName);
   return form;
 }
 
@@ -440,12 +441,14 @@ async function buildLegacyTemplateForm({
   aggregationDisplayType,
   subject,
   contentPath,
+  content,
   contentType,
   version,
 }) {
-  const fs = await import("node:fs");
   const path = await import("node:path");
-  const bytes = fs.readFileSync(contentPath);
+  // Either inline `content` (e.g. HTML with a rewritten image reference) or a file path.
+  const fileName = contentPath ? path.basename(contentPath) : `${name}.html`;
+  const bytes = content !== undefined ? content : (await import("node:fs")).readFileSync(contentPath);
   const file = new Blob([bytes], { type: contentType ?? "text/html" });
   const form = new FormData();
   form.set("name", name);
@@ -457,6 +460,6 @@ async function buildLegacyTemplateForm({
   }
   form.set("subject", subject);
   form.set("version", String(version));
-  form.set("content", file, path.basename(contentPath));
+  form.set("content", file, fileName);
   return form;
 }

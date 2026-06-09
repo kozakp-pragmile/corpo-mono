@@ -8,15 +8,18 @@ const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates", "immedia
 const IMAGES_DIR = resolve(__dirname, "..", "..", "..", "images");
 
 const BASE_URL = process.env.PIGEON_URL || "http://localhost:8086/pigeon/server";
-// Bearer token for the `/public/api/global-images` endpoint, used only by STANDARD
-// scenarios. If not set, the global image step is skipped (image won't be embedded
-// in STANDARD emails, but the orders still go through).
-const GLOBAL_IMAGES_TOKEN = process.env.PIGEON_BEARER_TOKEN;
+// Images are registered as global images (under /public/api), which both STANDARD and
+// LEGACY templates resolve by name at render time. Global images require a bearer token
+// (a JWT with roleNotificationContentManager). Falls back to this baked-in dev token so
+// the test runs out of the box; override with PIGEON_BEARER_TOKEN.
+const DEFAULT_BEARER_TOKEN =
+  "eyJhbGciOiJSUzI1NiJ9.eyJjbGkiOiIxMjM0IiwiYXVkIjoiMTIzNCIsInN1YiI6ImFkbWluIiwiZm4iOiJQaWdlb24iLCJsbiI6IkFkbWluIiwicm9sZXMiOlsicm9sZU5vdGlmaWNhdGlvbkNvbnRlbnRNYW5hZ2VyIl0sImdyIjpbIkV2ZXJ5b25lIl0sImlhdCI6MTc4MDM5MTA2NX0.fjr0784ceEDypPfXSbXZ8R_iKaPsnqCLGFn8WSDdkHhRYZVoYiCUDL-K4QCnTgj5-rWfInpfZ1WdK8Imgewz7T11naXOeTiVdifc7tV3qlCeSnT6klRyXpedc8xvs4pcPPXng5Fq_JQKzipQm2_7Qz7VicDDwZT21SoVGpkm3sSy0dC0iZtzNl_URV1zTOlcmlhkTM8N_X7wXKfy_YwmlEXc-nSbLxcYim7JFkKrkR1256YWfYqyCn3fJvZ41CieNohFTTJxAOgdKC1Q1js6iHXV6A_01E3Hs3w597iixiq8BgA240KaP_xdwKANHW1HNQZXF4PhXoAJSpCa-OEX5Q";
+const GLOBAL_TOKEN = process.env.PIGEON_BEARER_TOKEN || DEFAULT_BEARER_TOKEN;
 
 const WITH_NAME_TEMPLATE = resolve(TEMPLATES_DIR, "with-name-en.html");
 const WITHOUT_NAME_TEMPLATE = resolve(TEMPLATES_DIR, "without-name-en.html");
 const OWL_IMAGE_NAME = "owl";
-const OWL_IMAGE_PATH = resolve(IMAGES_DIR, "owl.jpg");
+const OWL_IMAGE_PATH = resolve(IMAGES_DIR, "jpg", "owl.jpg");
 
 const SUBJECT_WITH_NAME = "Welcome, {{name}}!";
 const SUBJECT_WITHOUT_NAME = "Notification update";
@@ -60,6 +63,9 @@ const pigeon = createClient(BASE_URL);
 async function run() {
   console.log(`\nPigeon API: ${BASE_URL}\n`);
 
+  step(`Resolve ${OWL_IMAGE_NAME} global image (shared, resolved by name at render time)`);
+  await resolveOwlImage();
+
   for (const kind of ["STANDARD", "LEGACY"]) {
     for (const channel of ["EMAIL", "IN_TOOL"]) {
       await runScenario(kind, channel);
@@ -81,11 +87,9 @@ async function runScenario(kind, channel) {
   const recipients = RECIPIENTS_BY_CHANNEL[channel];
   const createdNt = await createImmediateNt(kind, channel, `Immediate ${label} ${suffix}`);
   const ntId = createdNt.id;
-  const imageContext = await registerOwlImage(kind, ntId, createdNt.version);
   ok(`Notification type created: ${ntId}`);
 
-  const refreshedAfterImage = await refreshNt(kind, ntId);
-  const ntVersion = refreshedAfterImage.version;
+  const ntVersion = createdNt.version;
 
   const withNameTemplate = await addTemplate(kind, ntId, ntVersion, {
     name: `with-name-${suffix}`,
@@ -149,49 +153,34 @@ async function runScenario(kind, channel) {
   ok("Template removed");
 
   const refreshedAfterTemplateRemoval = await refreshNt(kind, ntId);
-  await unregisterOwlImage(kind, ntId, refreshedAfterTemplateRemoval.version, imageContext);
-
-  const refreshedAfterImageRemoval = await refreshNt(kind, ntId);
-  await deleteNt(kind, ntId, refreshedAfterImageRemoval.version);
+  await deleteNt(kind, ntId, refreshedAfterTemplateRemoval.version);
   ok("Notification type deleted");
 }
 
-async function registerOwlImage(kind, ntId, ntVersion) {
-  step(`Register ${OWL_IMAGE_NAME} image (${kind})`);
-  if (kind === "LEGACY") {
-    const image = await pigeon.addLegacyImage(ntId, {
+// Both STANDARD and LEGACY templates reference the logo as <img data-image-name="owl">,
+// which the backend resolves against the global images by name at render time. A single
+// shared global image named exactly "owl" is therefore enough for every scenario; it is
+// left in place across runs (get-or-create) since it is a shared resource.
+async function resolveOwlImage() {
+  try {
+    const image = await pigeon.addGlobalImage({
       name: OWL_IMAGE_NAME,
       imagePath: OWL_IMAGE_PATH,
-      version: ntVersion,
+      accessToken: GLOBAL_TOKEN,
     });
-    ok(`Legacy image attached: ${image.id}`);
-    return { imageId: image.id };
+    ok(`Global image "${OWL_IMAGE_NAME}" created: ${image.id}`);
+    return image.id;
+  } catch (e) {
+    const existing = await pigeon.queryGlobalImages({ name: OWL_IMAGE_NAME, accessToken: GLOBAL_TOKEN });
+    const match = existing?.content?.find((i) => i.name === OWL_IMAGE_NAME) ?? existing?.content?.[0];
+    if (!match) {
+      throw new Error(
+        `Global image "${OWL_IMAGE_NAME}" could not be created (status ${e.status ?? "?"}) and none exists to reuse.`
+      );
+    }
+    ok(`Reusing existing global image "${OWL_IMAGE_NAME}": ${match.id}`);
+    return match.id;
   }
-  if (!GLOBAL_IMAGES_TOKEN) {
-    fail(
-      `PIGEON_BEARER_TOKEN not set — skipping global image registration. ` +
-        `The ${OWL_IMAGE_NAME} image will not be embedded in STANDARD emails.`
-    );
-    return { imageId: null };
-  }
-  const image = await pigeon.addGlobalImage({
-    name: `${OWL_IMAGE_NAME}-${Date.now()}`,
-    imagePath: OWL_IMAGE_PATH,
-    accessToken: GLOBAL_IMAGES_TOKEN,
-  });
-  ok(`Global image created: ${image.id}`);
-  return { imageId: image.id };
-}
-
-async function unregisterOwlImage(kind, ntId, ntVersion, imageContext) {
-  if (!imageContext || !imageContext.imageId) return;
-  if (kind === "LEGACY") {
-    await pigeon.removeLegacyImage(ntId, imageContext.imageId, ntVersion);
-    ok("Legacy image removed");
-    return;
-  }
-  await pigeon.deleteGlobalImage(imageContext.imageId, GLOBAL_IMAGES_TOKEN);
-  ok("Global image deleted");
 }
 
 async function createImmediateNt(kind, channel, name) {

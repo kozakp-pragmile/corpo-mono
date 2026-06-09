@@ -47,7 +47,7 @@ async function run() {
     language: "en",
     syntax: "THYMELEAF",
     subject: "Your daily stock quotation",
-    contentPath: resolve(TEMPLATES_DIR, "thymeleaf", "daily-quotation-standard-en.html"),
+    contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "thymeleaf", "standard-en.html"),
   });
   const enTemplateId = enTemplate.templateId;
   ok(`Template added: ${enTemplateId}`);
@@ -59,7 +59,7 @@ async function run() {
     language: "no",
     syntax: "CKEDITOR",
     subject: "Din daglige aksjenotering",
-    contentPath: resolve(TEMPLATES_DIR, "ckeditor", "daily-quotation-standard-no.html"),
+    contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "ckeditor", "standard-no.html"),
   });
   const noTemplateId = noTemplate.templateId;
   ok(`Template added: ${noTemplateId}`);
@@ -79,7 +79,7 @@ async function run() {
     language: "en",
     syntax: "THYMELEAF",
     subject: "Your daily stock quotation (updated)",
-    contentPath: resolve(TEMPLATES_DIR, "thymeleaf", "daily-quotation-standard-en.html"),
+    contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "thymeleaf", "standard-en.html"),
   });
   ok("Template updated");
 

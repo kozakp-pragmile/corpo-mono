@@ -43,7 +43,7 @@ async function run() {
     language: "en",
     syntax: "THYMELEAF",
     subject: "Your daily quotation digest",
-    contentPath: resolve(TEMPLATES_DIR, "thymeleaf", "daily-quotation-aggregated-en.html"),
+    contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "thymeleaf", "aggregated-en.html"),
   });
   const aggEnTemplateId = aggEn.templateId;
   ok(`Template added: ${aggEnTemplateId}`);
@@ -55,7 +55,7 @@ async function run() {
     language: "de",
     syntax: "CKEDITOR",
     subject: "Ihre tägliche Notierungsübersicht",
-    contentPath: resolve(TEMPLATES_DIR, "ckeditor", "daily-quotation-aggregated-de.html"),
+    contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "ckeditor", "aggregated-de.html"),
   });
   const aggDeTemplateId = aggDe.templateId;
   ok(`Template added: ${aggDeTemplateId}`);
@@ -75,7 +75,7 @@ async function run() {
     language: "en",
     syntax: "THYMELEAF",
     subject: "Your daily quotation digest (updated)",
-    contentPath: resolve(TEMPLATES_DIR, "thymeleaf", "daily-quotation-aggregated-en.html"),
+    contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "thymeleaf", "aggregated-en.html"),
   });
   ok("Template updated");
 
@@ -99,7 +99,7 @@ async function run() {
     language: "en",
     syntax: "THYMELEAF",
     subject: "Linked: your daily quotation",
-    contentPath: resolve(TEMPLATES_DIR, "thymeleaf", "daily-quotation-standard-en.html"),
+    contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "thymeleaf", "standard-en.html"),
   });
   const linkedTemplateId = linkedTemplate.templateId;
   ok(`Linked template: ${linkedTemplateId}`);

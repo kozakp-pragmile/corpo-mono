@@ -9,7 +9,7 @@ const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates");
 const IMAGES_DIR = resolve(__dirname, "..", "..", "..", "images");
 
 const BASE_URL = process.env.PIGEON_URL || "http://localhost:8086/pigeon/server";
-// Images are registered as global images (under /public/api), which standard/legacy
+// Images are registered as global images (under /public/api), which notification-type
 // templates resolve by name at render time. Global images require a bearer token (a JWT
 // with roleNotificationContentManager). Falls back to this baked-in dev token so the
 // seed runs out of the box; override with PIGEON_BEARER_TOKEN.
@@ -36,9 +36,9 @@ const LANGUAGES = [
 // the bundled templates reference the "owl" image, which is rewritten to the bird below
 // and registered as a global image so the reference resolves by name at render time.
 const TYPE_DEFS = [
-  { key: "immediate", label: "Immediate Stock Quotation", timing: "IMMEDIATE", senderName: "Pigeon Legacy Seed — Immediate", image: "sparrow", withAggregate: false },
-  { key: "daily", label: "Daily Stock Quotation", timing: "DAILY", senderName: "Pigeon Legacy Seed — Daily", image: "pigeon", withAggregate: true },
-  { key: "weekly", label: "Weekly Stock Quotation", timing: "WEEKLY", senderName: "Pigeon Legacy Seed — Weekly", image: "eagle", withAggregate: true },
+  { key: "immediate", label: "Immediate Stock Quotation", timing: "IMMEDIATE", senderName: "Pigeon Notification Type Seed — Immediate", image: "sparrow", withAggregate: false },
+  { key: "daily", label: "Daily Stock Quotation", timing: "DAILY", senderName: "Pigeon Notification Type Seed — Daily", image: "pigeon", withAggregate: true },
+  { key: "weekly", label: "Weekly Stock Quotation", timing: "WEEKLY", senderName: "Pigeon Notification Type Seed — Weekly", image: "eagle", withAggregate: true },
 ];
 
 // The bundled CKEDITOR templates reference the logo via data-image-name="owl"; point it at
@@ -92,7 +92,7 @@ async function run() {
     step(`Register ${def.image} logo image (global, resolved by name at render time)`);
     const imageId = await resolveBirdImage(def.image);
 
-    step(`Create legacy notification type — ${def.label} (EMAIL, ${def.timing})`);
+    step(`Create notification type — ${def.label} (EMAIL, ${def.timing})`);
     const type = await pigeon.createLegacy({
       name: `${def.label} ${Date.now()}`,
       channel: "EMAIL",
@@ -112,7 +112,7 @@ async function run() {
         syntax: SYNTAX,
         type: "STANDARD",
         subject: lang.standardSubject,
-        contentPath: resolve(TEMPLATES_DIR, "ckeditor", `daily-quotation-standard-${lang.code}.html`),
+        contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "ckeditor", `standard-${lang.code}.html`),
       }, def.image, imageId);
       ok(`STANDARD/${lang.code}/${SYNTAX}`);
     }
@@ -127,7 +127,7 @@ async function run() {
           type: "AGGREGATE",
           aggregationDisplayType: "IRRELEVANT",
           subject: lang.aggregateSubject,
-          contentPath: resolve(TEMPLATES_DIR, "ckeditor", `daily-quotation-aggregated-${lang.code}.html`),
+          contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "ckeditor", `aggregated-${lang.code}.html`),
         }, def.image, imageId);
         ok(`AGGREGATE/${lang.code}/${SYNTAX}`);
       }
@@ -136,9 +136,9 @@ async function run() {
     }
   }
 
-  console.log(`\nSeeded legacy notification types ${createdIds.join(", ")} (left in database).\n`);
+  console.log(`\nSeeded notification types ${createdIds.join(", ")} (left in database).\n`);
 
-  if (!summary("legacy notification type seed (immediate / daily / weekly · pl/en/no/fr/de)")) {
+  if (!summary("notification type seed (immediate / daily / weekly · pl/en/no/fr/de)")) {
     process.exitCode = 1;
   }
 }

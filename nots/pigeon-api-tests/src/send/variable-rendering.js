@@ -14,8 +14,8 @@ const BASE_URL = process.env.PIGEON_URL || "http://localhost:8086/pigeon/server"
 const DEFAULT_TEST_EMAIL = "pigeon-rendering-tests@example.com";
 const TEST_EMAIL = process.env.PIGEON_TEST_EMAIL || DEFAULT_TEST_EMAIL;
 
-const CKEDITOR_TEMPLATE = resolve(TEMPLATES_DIR, "ckeditor", "variable-rendering-en.html");
-const THYMELEAF_TEMPLATE = resolve(TEMPLATES_DIR, "thymeleaf", "variable-rendering-en.html");
+const CKEDITOR_TEMPLATE = resolve(TEMPLATES_DIR, "variable-rendering", "ckeditor", "en.html");
+const THYMELEAF_TEMPLATE = resolve(TEMPLATES_DIR, "variable-rendering", "thymeleaf", "en.html");
 
 // Each scenario maps to one variables payload. The `expect` lines describe what the
 // NOTS-783 sanitization/classification should produce in the rendered email so the

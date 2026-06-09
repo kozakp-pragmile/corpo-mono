@@ -5,7 +5,7 @@ import { createClient } from "../pigeon-client.js";
 import { step, ok, fail, summary } from "../log.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates", "global-templates");
+const TEMPLATES_DIR = resolve(__dirname, "..", "..", "..", "templates", "global-template");
 const IMAGES_DIR = resolve(__dirname, "..", "..", "..", "images");
 
 const BASE_URL = process.env.PIGEON_URL || "http://localhost:8086/pigeon/server";
@@ -76,7 +76,7 @@ async function run() {
   const createdIds = [];
   for (const lang of LANGUAGES) {
     step(`Create GLOBAL aggregate template — ${lang.code.toUpperCase()} (CKEDITOR, adjustable-table)`);
-    const html = readFileSync(resolve(TEMPLATES_DIR, `global-digest-${lang.code}.html`), "utf8");
+    const html = readFileSync(resolve(TEMPLATES_DIR, `${lang.code}.html`), "utf8");
     const template = await pigeon.addGlobalTemplate({
       name: `seed-global-aggregate-${lang.code}-${Date.now()}`,
       language: lang.code,

@@ -77,9 +77,9 @@ export function createClient(
 
   const STANDARD_BASE = "/private/api/standard-notification-types";
 
-  async function createStandard({ name, channel, senderName, aggregatedNotificationTypeId, defaultNotificationTiming } = {}) {
+  async function createStandard({ name, description, channel, senderName, aggregatedNotificationTypeId, defaultNotificationTiming } = {}) {
     return request("POST", STANDARD_BASE, {
-      body: { name, channel, senderName, aggregatedNotificationTypeId, defaultNotificationTiming },
+      body: { name, description, channel, senderName, aggregatedNotificationTypeId, defaultNotificationTiming },
     });
   }
 
@@ -283,8 +283,8 @@ export function createClient(
 
   const AGGREGATED_BASE = "/private/api/aggregated-notification-types";
 
-  async function createAggregated({ name, senderName } = {}) {
-    return request("POST", AGGREGATED_BASE, { body: { name, senderName } });
+  async function createAggregated({ name, description, senderName } = {}) {
+    return request("POST", AGGREGATED_BASE, { body: { name, description, senderName } });
   }
 
   async function patchAggregated(id, patch = {}) {

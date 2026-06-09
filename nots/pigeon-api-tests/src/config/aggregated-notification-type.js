@@ -17,6 +17,7 @@ async function run() {
   step("1. Create aggregated notification type");
   const aggregated = await pigeon.createAggregated({
     name: `Daily Quotation Digest ${Date.now()}`,
+    description: "Daily quotation digest",
     senderName: "Pigeon Digest",
   });
   const aggId = aggregated.id;
@@ -27,9 +28,10 @@ async function run() {
   await pigeon.findAggregated(aggId);
 
   // ── 3. Patch ───────────────────────────────────────────────
-  step("3. Patch aggregated — rename and update senderName");
+  step("3. Patch aggregated — rename and update description and senderName");
   await pigeon.patchAggregated(aggId, {
     name: `Daily Quotation Digest (renamed) ${Date.now()}`,
+    description: "Weekly quotation digest",
     senderName: "Pigeon Digest v2",
   });
   ok("Patched");
@@ -81,6 +83,7 @@ async function run() {
   step("9. Create standard notification type linked to aggregated");
   const linkedStandard = await pigeon.createStandard({
     name: `Daily Quotation linked ${Date.now()}`,
+    description: "Linked stock quotation",
     channel: "EMAIL",
     senderName: "Pigeon Tests",
     aggregatedNotificationTypeId: aggId,

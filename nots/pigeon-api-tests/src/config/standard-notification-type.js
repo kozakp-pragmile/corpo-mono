@@ -18,6 +18,7 @@ async function run() {
   step("1. Create standard notification type (EMAIL, DAILY)");
   const created = await pigeon.createStandard({
     name: `Daily Stock Quotation ${Date.now()}`,
+    description: "Daily stock prices",
     channel: "EMAIL",
     senderName: "Pigeon Tests",
     defaultNotificationTiming: "DAILY",
@@ -29,10 +30,11 @@ async function run() {
   step("2. Find standard notification type by id");
   await pigeon.findStandard(sntId);
 
-  // ── 3. Patch name, senderName and defaultNotificationTiming ─
-  step("3. Patch name, senderName and defaultNotificationTiming → WEEKLY");
+  // ── 3. Patch name, description, senderName and defaultNotificationTiming ─
+  step("3. Patch name, description, senderName and defaultNotificationTiming → WEEKLY");
   await pigeon.patchStandard(sntId, {
     name: `Daily Stock Quotation (renamed) ${Date.now()}`,
+    description: "Weekly stock prices",
     senderName: "Pigeon Tests v2",
     defaultNotificationTiming: "WEEKLY",
   });

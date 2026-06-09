@@ -6,6 +6,8 @@
   "scripts": {
     "config:standard-type": "node src/config/standard-notification-type.js",
     "config:aggregated-type": "node src/config/aggregated-notification-type.js",
+    "seed:standard-type": "node src/config/seed-standard-notification-type.js",
+    "seed:aggregated-type": "node src/config/seed-aggregated-notification-type.js",
     "send:immediate": "node src/send/immediate-notification.js",
     "send:variable-rendering": "node src/send/variable-rendering.js",
     "send:legacy-aggregation-thymeleaf": "node src/send/legacy-aggregation-thymeleaf.js",

@@ -31,7 +31,7 @@
   <body>
     <!--/*@thymesVar id="name" type="java.lang.String"*/-->
     <!--/*@thymesVar id="quotationDate" type="java.util.Date"*/-->
-    <!--/*@thymesVar id="message" type="com.corporater.pigeon.backend.shared.values.PartialMessage"*/-->
+    <!--/*@thymesVar id="messages" type="java.util.List<com.corporater.pigeon.backend.shared.values.TemplatePartialMessage>"*/-->
     <div class="header">
       <h1>Dzienne notowania giełdowe - podsumowanie</h1>
       <p>
@@ -48,13 +48,11 @@
       które subskrybujesz.
     </p>
 
-    <div class="aggregated-messages-in-adjustable-card-format">
-      <div style="background:#e5f1fb; border:1px solid #d4e0ee; border-radius:8px; margin:32px auto; padding:24px; font-family:Arial,sans-serif; box-shadow:0 2px 8px rgba(50,50,50,0.04);">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ccd6e2; padding-bottom:12px; margin-bottom:20px;">
-          <span style="font-size:1.5rem; font-weight:bold;" th:text="${message.subject}">Subject</span>
-        </div>
-        <div style="margin-bottom:14px; font-size:1rem;" th:utext="${message.body}">Body</div>
+    <div th:each="message : ${messages}" style="background:#e5f1fb; border:1px solid #d4e0ee; border-radius:8px; margin:32px auto; padding:24px; font-family:Arial,sans-serif; box-shadow:0 2px 8px rgba(50,50,50,0.04);">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ccd6e2; padding-bottom:12px; margin-bottom:20px;">
+        <span style="font-size:1.5rem; font-weight:bold;" th:text="${message.subject}">Subject</span>
       </div>
+      <div style="margin-bottom:14px; font-size:1rem;" th:utext="${message.body}">Body</div>
     </div>
 
     <div class="footer">

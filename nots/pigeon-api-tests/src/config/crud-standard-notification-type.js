@@ -73,15 +73,19 @@ async function run() {
   await pigeon.downloadStandardTemplateContent(sntId, enTemplateId);
 
   // ── 8. Update template (en) ────────────────────────────────
-  step("8. Update template (en) — same file, new subject");
+  step("8. Update template (en) — new content + subject (for changelog)");
   await pigeon.updateStandardTemplate(sntId, enTemplateId, {
     name: "Daily Quotation EN v2",
     language: "en",
     syntax: "THYMELEAF",
     subject: "Your daily stock quotation (updated)",
-    contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "thymeleaf", "standard-en.html"),
+    contentPath: resolve(TEMPLATES_DIR, "stock-quotation", "thymeleaf", "standard-en-v2.html"),
   });
   ok("Template updated");
+
+  // ── 8b. Download template content again (verify changelog) ─
+  step("8b. Download template content (en) — after update");
+  await pigeon.downloadStandardTemplateContent(sntId, enTemplateId);
 
   // ── 9. Query without filters ───────────────────────────────
   step("9. Query standard notification types (no filters)");

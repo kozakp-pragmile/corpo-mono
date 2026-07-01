@@ -11,6 +11,7 @@
     "config:seed:aggregated-notification-type": "node src/config/seed-aggregated-notification-type.js",
     "config:seed:global-template": "node src/config/seed-global-template.js",
     "send:immediate-notification": "node src/send/immediate-notification.js",
+    "send:real-immediate-notification": "node src/send/real-immediate-notification.js",
     "send:variable-rendering": "node src/send/variable-rendering.js",
     "send:aggregated-digest-thymeleaf": "node src/send/aggregated-digest-thymeleaf.js",
     "send:aggregated-digest-ckeditor": "node src/send/aggregated-digest-ckeditor.js",

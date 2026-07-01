@@ -272,6 +272,46 @@ export function createClient(
     return request("DELETE", `${GLOBAL_IMAGES_BASE}/${id}`, { accessToken });
   }
 
+  // ── Image Assets ────────────────────────────────────────────
+  // Event-sourced successor to Global Images (NOTS-846). Same multipart surface at a new
+  // path; create/update return the domain ImageAssetUco (carrying `version`), while GET
+  // by id and query return the projection (carrying `currentVersion` + flat createdBy/updatedBy).
+
+  const IMAGE_ASSETS_BASE = "/public/api/image-assets";
+
+  async function addImageAsset({ name, imagePath, contentType, accessToken } = {}) {
+    return request("POST", IMAGE_ASSETS_BASE, {
+      formData: await buildImageForm({ name, imagePath, contentType }),
+      accessToken,
+    });
+  }
+
+  async function updateImageAsset(id, { name, imagePath, contentType, accessToken } = {}) {
+    return request("PUT", `${IMAGE_ASSETS_BASE}/${id}`, {
+      formData: await buildImageForm({ name, imagePath, contentType }),
+      accessToken,
+    });
+  }
+
+  async function findImageAsset(id, accessToken) {
+    return request("GET", `${IMAGE_ASSETS_BASE}/${id}`, { accessToken });
+  }
+
+  async function downloadImageAssetContent(id, accessToken) {
+    return request("GET", `${IMAGE_ASSETS_BASE}/${id}/content`, { raw: true, accessToken });
+  }
+
+  async function queryImageAssets({ name, search, page, size, sortBy, direction, accessToken } = {}) {
+    return request("GET", IMAGE_ASSETS_BASE, {
+      query: { name, search, page, size, sortBy, direction },
+      accessToken,
+    });
+  }
+
+  async function deleteImageAsset(id, accessToken) {
+    return request("DELETE", `${IMAGE_ASSETS_BASE}/${id}`, { accessToken });
+  }
+
   // ── Notification Orders ─────────────────────────────────────
 
   const ORDERS_BASE = "/private/api/notification-orders";
@@ -383,6 +423,12 @@ export function createClient(
     downloadGlobalImageContent,
     queryGlobalImages,
     deleteGlobalImage,
+    addImageAsset,
+    updateImageAsset,
+    findImageAsset,
+    downloadImageAssetContent,
+    queryImageAssets,
+    deleteImageAsset,
     createNotificationOrder,
     findNotificationOrder,
   };

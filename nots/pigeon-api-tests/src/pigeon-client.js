@@ -246,9 +246,24 @@ export function createClient(
     });
   }
 
-  async function queryGlobalImages({ name, page, size, sortBy, direction, accessToken } = {}) {
+  async function updateGlobalImage(id, { name, imagePath, contentType, accessToken } = {}) {
+    return request("PUT", `${GLOBAL_IMAGES_BASE}/${id}`, {
+      formData: await buildImageForm({ name, imagePath, contentType }),
+      accessToken,
+    });
+  }
+
+  async function findGlobalImage(id, accessToken) {
+    return request("GET", `${GLOBAL_IMAGES_BASE}/${id}`, { accessToken });
+  }
+
+  async function downloadGlobalImageContent(id, accessToken) {
+    return request("GET", `${GLOBAL_IMAGES_BASE}/${id}/content`, { raw: true, accessToken });
+  }
+
+  async function queryGlobalImages({ name, search, page, size, sortBy, direction, accessToken } = {}) {
     return request("GET", GLOBAL_IMAGES_BASE, {
-      query: { name, page, size, sortBy, direction },
+      query: { name, search, page, size, sortBy, direction },
       accessToken,
     });
   }
@@ -363,6 +378,9 @@ export function createClient(
     addGlobalTemplate,
     deleteGlobalTemplate,
     addGlobalImage,
+    updateGlobalImage,
+    findGlobalImage,
+    downloadGlobalImageContent,
     queryGlobalImages,
     deleteGlobalImage,
     createNotificationOrder,

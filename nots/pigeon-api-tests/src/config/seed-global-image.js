@@ -20,6 +20,8 @@ const GLOBAL_TOKEN = process.env.PIGEON_BEARER_TOKEN || DEFAULT_BEARER_TOKEN;
 // The JPG variants are used because the PNGs exceed the backend's configured max image size.
 const IMAGES = [
   { name: "owl", file: "owl.jpg" },
+  // Same file seeded twice under different names — proves names are independent of file content.
+  { name: "scary-owl", file: "owl.jpg" },
   { name: "pigeon", file: "pigeon.jpg" },
   { name: "eagle", file: "eagle.jpg" },
   { name: "hawk", file: "hawk.jpg" },

@@ -13,8 +13,8 @@ const pigeon = createClient(BASE_URL);
 async function run() {
   console.log(`\nPigeon API: ${BASE_URL}\n`);
 
-  // ── 1. Create aggregated notification type ─────────────────
-  step("1. Create aggregated notification type");
+  // ── 1. Create aggregated notification definition ─────────────────
+  step("1. Create aggregated notification definition");
   const aggregated = await pigeon.createAggregated({
     name: `Daily Quotation Digest ${Date.now()}`,
     description: "Daily quotation digest",
@@ -24,7 +24,7 @@ async function run() {
   ok(`Created: ${aggId}`);
 
   // ── 2. Find by id ──────────────────────────────────────────
-  step("2. Find aggregated notification type by id");
+  step("2. Find aggregated notification definition by id");
   await pigeon.findAggregated(aggId);
 
   // ── 3. Patch ───────────────────────────────────────────────
@@ -80,13 +80,13 @@ async function run() {
   ok("Template updated");
 
   // ── 9. Create standard notification linked to aggregated ───
-  step("9. Create standard notification type linked to aggregated");
+  step("9. Create standard notification definition linked to aggregated");
   const linkedStandard = await pigeon.createStandard({
     name: `Daily Quotation linked ${Date.now()}`,
     description: "Linked stock quotation",
     channel: "EMAIL",
     senderName: "Pigeon Tests",
-    aggregatedNotificationTypeId: aggId,
+    aggregatedNotificationDefinitionId: aggId,
     defaultNotificationTiming: "DAILY",
   });
   const sntId = linkedStandard.id;
@@ -105,11 +105,11 @@ async function run() {
   ok(`Linked template: ${linkedTemplateId}`);
 
   // ── 11. Query standards filtered by aggregated id ──────────
-  step("11. Query standard notification types filtered by aggregatedNotificationTypeId");
-  await pigeon.queryStandards({ aggregatedNotificationTypeId: aggId });
+  step("11. Query standard notification definitions filtered by aggregatedNotificationDefinitionId");
+  await pigeon.queryStandards({ aggregatedNotificationDefinitionId: aggId });
 
-  // ── 12. Query aggregated notification types ────────────────
-  step("12. Query aggregated notification types");
+  // ── 12. Query aggregated notification definitions ────────────────
+  step("12. Query aggregated notification definitions");
   await pigeon.queryAggregated({ size: 5, sortBy: "createdAt", direction: "DESC" });
 
   // ── 13. Query aggregated with search filter ────────────────
@@ -117,7 +117,7 @@ async function run() {
   await pigeon.queryAggregated({ search: "Digest" });
 
   // ── 14. Attempt premature delete of aggregated while linked standard still exists ──
-  step("14. Attempt to delete aggregated notification type before removing linked standard (expected to fail)");
+  step("14. Attempt to delete aggregated notification definition before removing linked standard (expected to fail)");
   try {
     await pigeon.deleteAggregated(aggId);
     fail("Aggregated was unexpectedly deleted while a linked standard still exists");
@@ -130,7 +130,7 @@ async function run() {
   await pigeon.removeStandardTemplate(sntId, linkedTemplateId);
   ok("Template removed");
 
-  step("16. Delete linked standard notification type");
+  step("16. Delete linked standard notification definition");
   await pigeon.deleteStandard(sntId);
   ok("Deleted");
 
@@ -143,12 +143,12 @@ async function run() {
   await pigeon.removeAggregatedTemplate(aggId, aggEnTemplateId);
   ok("Template removed");
 
-  // ── Delete aggregated notification type ────────────────────
-  step("19. Delete aggregated notification type");
+  // ── Delete aggregated notification definition ────────────────────
+  step("19. Delete aggregated notification definition");
   await pigeon.deleteAggregated(aggId);
   ok("Deleted");
 
-  if (!summary("aggregated notification type lifecycle")) {
+  if (!summary("aggregated notification definition lifecycle")) {
     process.exitCode = 1;
   }
 }

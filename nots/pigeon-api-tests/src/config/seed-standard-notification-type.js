@@ -13,8 +13,8 @@ const pigeon = createClient(BASE_URL);
 async function run() {
   console.log(`\nPigeon API: ${BASE_URL}\n`);
 
-  // ── 1. Create standard notification type ───────────────────
-  step("1. Create standard notification type (EMAIL, DAILY)");
+  // ── 1. Create standard notification definition ───────────────────
+  step("1. Create standard notification definition (EMAIL, DAILY)");
   const created = await pigeon.createStandard({
     name: `Daily Stock Quotation ${Date.now()}`,
     description: "Daily stock prices",
@@ -47,9 +47,9 @@ async function run() {
   });
   ok(`Template added: ${noTemplate.templateId}`);
 
-  console.log(`\nSeeded standard notification type ${sntId} (left in database).\n`);
+  console.log(`\nSeeded standard notification definition ${sntId} (left in database).\n`);
 
-  if (!summary("standard notification type seed")) {
+  if (!summary("standard notification definition seed")) {
     process.exitCode = 1;
   }
 }

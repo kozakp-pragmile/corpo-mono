@@ -73,13 +73,13 @@ export function createClient(
     return data;
   }
 
-  // ── Standard Notification Types ─────────────────────────────
+  // ── Standard Notification Definitions ─────────────────────────────
 
-  const STANDARD_BASE = "/private/api/standard-notification-types";
+  const STANDARD_BASE = "/private/api/standard-notification-definitions";
 
-  async function createStandard({ name, description, channel, senderName, aggregatedNotificationTypeId, defaultNotificationTiming } = {}) {
+  async function createStandard({ name, description, channel, senderName, aggregatedNotificationDefinitionId, defaultNotificationTiming } = {}) {
     return request("POST", STANDARD_BASE, {
-      body: { name, description, channel, senderName, aggregatedNotificationTypeId, defaultNotificationTiming },
+      body: { name, description, channel, senderName, aggregatedNotificationDefinitionId, defaultNotificationTiming },
     });
   }
 
@@ -91,9 +91,9 @@ export function createClient(
     return request("GET", `${STANDARD_BASE}/${id}`);
   }
 
-  async function queryStandards({ channel, aggregatedNotificationTypeId, search, page, size, sortBy, direction } = {}) {
+  async function queryStandards({ channel, aggregatedNotificationDefinitionId, search, page, size, sortBy, direction } = {}) {
     return request("GET", STANDARD_BASE, {
-      query: { channel, aggregatedNotificationTypeId, search, page, size, sortBy, direction },
+      query: { channel, aggregatedNotificationDefinitionId, search, page, size, sortBy, direction },
     });
   }
 
@@ -334,9 +334,9 @@ export function createClient(
     return request("GET", `${ORDERS_BASE}/${id}`);
   }
 
-  // ── Aggregated Notification Types ───────────────────────────
+  // ── Aggregated Notification Definitions ───────────────────────────
 
-  const AGGREGATED_BASE = "/private/api/aggregated-notification-types";
+  const AGGREGATED_BASE = "/private/api/aggregated-notification-definitions";
 
   async function createAggregated({ name, description, senderName } = {}) {
     return request("POST", AGGREGATED_BASE, { body: { name, description, senderName } });

@@ -17,12 +17,12 @@ const GLOBAL_TOKEN = process.env.PIGEON_BEARER_TOKEN || DEFAULT_BEARER_TOKEN;
 const SENDER_EMAIL = "sender@no-reply.com";
 const TAG = "pigeon-api-tests-aggregated-digest-thymeleaf";
 
-// Seeded singleton "default" aggregated notification type. Its templates are the
+// Seeded singleton "default" aggregated notification definition. Its templates are the
 // lowest-priority wrapper for multi-type digests (global templates override them per
 // language). Reached via /private, so no bearer token is needed.
-const DEFAULT_AGGREGATED_NOTIFICATION_TYPE_ID = "ANT-00000000-0000-0000-0000-000000000001";
+const DEFAULT_AGGREGATED_NOTIFICATION_DEFINITION_ID = "AND-00000000-0000-0000-0000-000000000001";
 // Multi-type digest wrappers: EN/DE come from /public global templates, PL comes from
-// the default aggregated notification type (in CKEditor adjustable-table format).
+// the default aggregated notification definition (in CKEditor adjustable-table format).
 const GLOBAL_WRAPPER_LANGUAGES = ["en", "de"];
 const DEFAULT_ANT_WRAPPER_LANGUAGES = ["pl"];
 
@@ -156,7 +156,7 @@ async function run() {
 
   // Multi-type digests need a wrapper template: the DE wrapper is a global template
   // (/public/api, requires a JWT with "roleNotificationContentManager"), the PL
-  // wrapper lives on the default aggregated notification type (/private, no token).
+  // wrapper lives on the default aggregated notification definition (/private, no token).
   // Without a token we run only the EN recipient (single notification type → the
   // type's OWN AGGREGATE template, no wrapper lookup needed) and skip DE/PL.
   const fullScenario = Boolean(GLOBAL_TOKEN);
@@ -226,7 +226,7 @@ async function run() {
 
     // ── 3. Multi-type digest wrappers: GLOBAL [en, de] + DEFAULT ANT [pl] ──
     // EN/DE wrappers are global templates (/public, THYMELEAF). PL is defined on the
-    // DEFAULT aggregated notification type in CKEditor adjustable-table format: there
+    // DEFAULT aggregated notification definition in CKEditor adjustable-table format: there
     // is NO {{#messages}} loop — the service injects it around the prototype <tr>.
     if (fullScenario) {
       step("Create GLOBAL aggregate templates [en, de] (THYMELEAF, shared by daily and weekly multi-type digests)");
@@ -244,12 +244,12 @@ async function run() {
         ok(`Global aggregate ${language.toUpperCase()}: ${globalTemplate.id}`);
       }
 
-      step("Create PL wrapper on the DEFAULT aggregated notification type (CKEDITOR adjustable-table, no loop)");
-      const antPl = await pigeon.addAggregatedTemplate(DEFAULT_AGGREGATED_NOTIFICATION_TYPE_ID, {
+      step("Create PL wrapper on the DEFAULT aggregated notification definition (CKEDITOR adjustable-table, no loop)");
+      const antPl = await pigeon.addAggregatedTemplate(DEFAULT_AGGREGATED_NOTIFICATION_DEFINITION_ID, {
           name: `agg-digest-default-ant-pl-${Date.now()}`,
         language: "pl",
         syntax: "CKEDITOR",
-        subject: "DIGEST · DEFAULT aggregated notification type · PL",
+        subject: "DIGEST · DEFAULT aggregated notification definition · PL",
         contentPath: resolve(TEMPLATES_DIR, "default-ant-aggregate-pl.html"),
       });
       created.antTemplateIds.push(antPl.templateId);
@@ -386,7 +386,7 @@ function describeDigest(suborders, recipient) {
   } else {
     const lang = pickLanguage(recipient.languages, ["en", "de", "pl"]);
     const source = DEFAULT_ANT_WRAPPER_LANGUAGES.includes(lang)
-      ? "DEFAULT aggregated notification type · CKEditor adjustable-table"
+      ? "DEFAULT aggregated notification definition · CKEditor adjustable-table"
       : "GLOBAL aggregate template";
     wrapper = `${source} (language: ${lang})`;
   }
@@ -454,7 +454,7 @@ async function cleanup(created) {
   }
   for (const id of created.antTemplateIds) {
     await safe(`Remove default ANT template ${id}`, () =>
-      pigeon.removeAggregatedTemplate(DEFAULT_AGGREGATED_NOTIFICATION_TYPE_ID, id)
+      pigeon.removeAggregatedTemplate(DEFAULT_AGGREGATED_NOTIFICATION_DEFINITION_ID, id)
     );
   }
   for (const typeId of Object.values(created.typeIds)) {

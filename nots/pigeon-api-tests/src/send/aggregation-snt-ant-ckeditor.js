@@ -109,8 +109,8 @@ async function run() {
   console.log(`\nPigeon API: ${BASE_URL}\n`);
   console.log(
     "Scenario: modern SNT/ANT aggregation, NO global templates.\n" +
-      "  • 2 aggregated notification types (ANT1 card, ANT2 table)\n" +
-      "  • 5 standard notification types linked across the ANTs and DAILY/WEEKLY\n" +
+      "  • 2 aggregated notification definitions (ANT1 card, ANT2 table)\n" +
+      "  • 5 standard notification definitions linked across the ANTs and DAILY/WEEKLY\n" +
       "  • digests group by (recipient + ANT + timing) → every recipient gets 4 digest emails:\n" +
       "      ANT1/DAILY, ANT1/WEEKLY, ANT2/DAILY, ANT2/WEEKLY\n"
   );
@@ -141,7 +141,7 @@ async function run() {
 
     // ── 2. Create the two ANTs with their aggregate wrapper templates ──
     for (const ant of Object.values(ANT_DEFS)) {
-      step(`Create ${ant.name} (aggregated notification type)`);
+      step(`Create ${ant.name} (aggregated notification definition)`);
       const created_ant = await pigeon.createAggregated({
         name: `${ant.name} ${Date.now()}`,
         senderName: ant.senderName,
@@ -170,7 +170,7 @@ async function run() {
         name: `${snt.label} ${Date.now()}`,
         channel: "EMAIL",
         senderName: `Pigeon SNT/ANT Aggregation — ${snt.label}`,
-        aggregatedNotificationTypeId: ant.id,
+        aggregatedNotificationDefinitionId: ant.id,
         defaultNotificationTiming: snt.timing,
       });
       created.sntIds[snt.key] = created_snt.id;
@@ -356,13 +356,13 @@ async function cleanup(created) {
     await safe(`Remove standard template ${templateId}`, () => pigeon.removeStandardTemplate(sntId, templateId));
   }
   for (const [key, id] of Object.entries(created.sntIds)) {
-    await safe(`Delete standard notification type ${key} (${id})`, () => pigeon.deleteStandard(id));
+    await safe(`Delete standard notification definition ${key} (${id})`, () => pigeon.deleteStandard(id));
   }
   for (const { antId, templateId } of created.antTemplateIds) {
     await safe(`Remove aggregated template ${templateId}`, () => pigeon.removeAggregatedTemplate(antId, templateId));
   }
   for (const [key, id] of Object.entries(created.antIds)) {
-    await safe(`Delete aggregated notification type ${key} (${id})`, () => pigeon.deleteAggregated(id));
+    await safe(`Delete aggregated notification definition ${key} (${id})`, () => pigeon.deleteAggregated(id));
   }
   for (const [key, id] of Object.entries(created.recipientIds)) {
     await safe(`Delete recipient ${key} (${id})`, () => pigeon.deleteRecipient(id));

@@ -14,8 +14,8 @@ const pigeon = createClient(BASE_URL);
 async function run() {
   console.log(`\nPigeon API: ${BASE_URL}\n`);
 
-  // ── 1. Create standard notification type ───────────────────
-  step("1. Create standard notification type (EMAIL, DAILY)");
+  // ── 1. Create standard notification definition ───────────────────
+  step("1. Create standard notification definition (EMAIL, DAILY)");
   const created = await pigeon.createStandard({
     name: `Daily Stock Quotation ${Date.now()}`,
     description: "Daily stock prices",
@@ -27,7 +27,7 @@ async function run() {
   ok(`Created: ${sntId}`);
 
   // ── 2. Find by id ──────────────────────────────────────────
-  step("2. Find standard notification type by id");
+  step("2. Find standard notification definition by id");
   await pigeon.findStandard(sntId);
 
   // ── 3. Patch name, description, senderName and defaultNotificationTiming ─
@@ -88,7 +88,7 @@ async function run() {
   await pigeon.downloadStandardTemplateContent(sntId, enTemplateId);
 
   // ── 9. Query without filters ───────────────────────────────
-  step("9. Query standard notification types (no filters)");
+  step("9. Query standard notification definitions (no filters)");
   await pigeon.queryStandards({ size: 5, sortBy: "createdAt", direction: "DESC" });
 
   // ── 10. Query filtered by channel + search ─────────────────
@@ -132,12 +132,12 @@ async function run() {
   await pigeon.removeStandardTemplate(sntId, enTemplateId);
   ok("Template removed");
 
-  // ── 14. Delete standard notification type ──────────────────
-  step("14. Delete standard notification type");
+  // ── 14. Delete standard notification definition ──────────────────
+  step("14. Delete standard notification definition");
   await pigeon.deleteStandard(sntId);
   ok("Deleted");
 
-  if (!summary("standard notification type lifecycle")) {
+  if (!summary("standard notification definition lifecycle")) {
     process.exitCode = 1;
   }
 }

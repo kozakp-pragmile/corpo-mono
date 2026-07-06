@@ -97,7 +97,7 @@ const SCENARIOS = [
   },
 ];
 
-// A standard notification type allows only one template per language, so each
+// A standard notification definition allows only one template per language, so each
 // syntax gets its own notification type carrying a single "en" template.
 const SYNTAXES = [
   { syntax: "CKEDITOR", subject: "{{engine}} — {{scenario}}", contentPath: CKEDITOR_TEMPLATE },
@@ -125,7 +125,7 @@ async function runSyntax({ syntax, subject, contentPath }) {
   console.log(`# Syntax: ${syntax}`);
   console.log(`${"#".repeat(115)}`);
 
-  step(`Create standard notification type for ${syntax} (EMAIL, IMMEDIATE)`);
+  step(`Create standard notification definition for ${syntax} (EMAIL, IMMEDIATE)`);
   const created = await pigeon.createStandard({
     name: `Variable Rendering ${syntax} ${Date.now()}`,
     channel: "EMAIL",

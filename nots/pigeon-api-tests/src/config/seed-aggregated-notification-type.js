@@ -13,8 +13,8 @@ const pigeon = createClient(BASE_URL);
 async function run() {
   console.log(`\nPigeon API: ${BASE_URL}\n`);
 
-  // ── 1. Create aggregated notification type ─────────────────
-  step("1. Create aggregated notification type");
+  // ── 1. Create aggregated notification definition ─────────────────
+  step("1. Create aggregated notification definition");
   const aggregated = await pigeon.createAggregated({
     name: `Daily Quotation Digest ${Date.now()}`,
     description: "Daily quotation digest",
@@ -46,13 +46,13 @@ async function run() {
   ok(`Template added: ${aggDe.templateId}`);
 
   // ── 4. Create standard notification linked to aggregated ───
-  step("4. Create standard notification type linked to aggregated");
+  step("4. Create standard notification definition linked to aggregated");
   const linkedStandard = await pigeon.createStandard({
     name: `Daily Quotation linked ${Date.now()}`,
     description: "Linked stock quotation",
     channel: "EMAIL",
     senderName: "Pigeon Tests",
-    aggregatedNotificationTypeId: aggId,
+    aggregatedNotificationDefinitionId: aggId,
     defaultNotificationTiming: "DAILY",
   });
   const sntId = linkedStandard.id;
@@ -69,9 +69,9 @@ async function run() {
   });
   ok(`Linked template: ${linkedTemplate.templateId}`);
 
-  console.log(`\nSeeded aggregated notification type ${aggId} with linked standard ${sntId} (left in database).\n`);
+  console.log(`\nSeeded aggregated notification definition ${aggId} with linked standard ${sntId} (left in database).\n`);
 
-  if (!summary("aggregated notification type seed")) {
+  if (!summary("aggregated notification definition seed")) {
     process.exitCode = 1;
   }
 }

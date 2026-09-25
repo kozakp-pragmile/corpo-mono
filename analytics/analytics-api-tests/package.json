@@ -1,0 +1,11 @@
+{
+  "name": "analytics-api-tests",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dashboard:create": "node src/dashboard/create-dashboard.js",
+    "dashboard:get": "node src/dashboard/get-dashboard.js",
+    "dashboard:data": "node src/dashboard/fetch-dashboard-data.js"
+  }
+}

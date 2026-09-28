@@ -25,10 +25,10 @@ function checkTileEvent(event, tileId) {
   const answer = event.data?.answer;
   if (event.id === tileId && event.data?.tileId === tileId) ok(`tile event for ${tileId}`);
   else fail(`tile event does not name ${tileId}: id=${event.id} tileId=${event.data?.tileId}`);
-  if (answer?.period && answer?.kpi && Array.isArray(answer?.perSubOrganisation)) {
-    ok(`answer has period, kpi and ${answer.perSubOrganisation.length} sub-organisations`);
+  if (answer?.period && answer?.kpi && Array.isArray(answer?.kpisPerSubOrganisation)) {
+    ok(`answer has period, kpi and ${answer.kpisPerSubOrganisation.length} sub-organisations`);
   } else {
-    fail("answer lacks period, kpi or perSubOrganisation");
+    fail("answer lacks period, kpi or kpisPerSubOrganisation");
   }
 }
 

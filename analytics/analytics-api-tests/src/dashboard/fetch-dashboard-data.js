@@ -5,6 +5,9 @@ import { kpiPerOrganisationDashboard } from "./specs.js";
 const BASE_URL = process.env.BASE || "http://localhost:4360/analytics/server";
 
 const analytics = createClient(BASE_URL, { accessToken: process.env.TOKEN || undefined });
+if (!process.env.TOKEN) {
+  console.warn("TOKEN not set: using the built-in dev token, which Bedrock does not know; kpiPerOrganisation tiles will fail. Set TOKEN=<auth-service JWT>.");
+}
 
 // PERIOD is the period start as epoch milliseconds in BMP's zone (1735686000000 = 2025 in Oslo),
 // PERIOD_TYPE the customer's period type id, YTD true to read from the start of the year.

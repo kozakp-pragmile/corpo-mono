@@ -2,11 +2,11 @@ import { createClient } from "../analytics-client.js";
 import { step, ok, fail, summary } from "../log.js";
 import { kpiPerOrganisationDashboard } from "./specs.js";
 
-const BASE_URL = process.env.ANALYTICS_URL || "http://localhost:4360/analytics/server";
+const BASE_URL = process.env.BASE || "http://localhost:4360/analytics/server";
 
-const analytics = createClient(BASE_URL, { accessToken: process.env.ANALYTICS_TOKEN || undefined });
+const analytics = createClient(BASE_URL, { accessToken: process.env.TOKEN || undefined });
 const privateAnalytics = createClient(BASE_URL, {
-  accessToken: process.env.ANALYTICS_TOKEN || undefined,
+  accessToken: process.env.TOKEN || undefined,
   prefix: "/private",
 });
 

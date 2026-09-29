@@ -2,11 +2,19 @@ import { createClient } from "../analytics-client.js";
 import { step, ok, fail, summary } from "../log.js";
 import { kpiPerOrganisationDashboard } from "./specs.js";
 
-const BASE_URL = process.env.ANALYTICS_URL || "http://localhost:4360/analytics/server";
+const BASE_URL = process.env.BASE || "http://localhost:4360/analytics/server";
 
-const analytics = createClient(BASE_URL, { accessToken: process.env.ANALYTICS_TOKEN || undefined });
+const analytics = createClient(BASE_URL, { accessToken: process.env.TOKEN || undefined });
 
-const PERIOD = { selectedPeriod: 1735686000000, selectedPeriodType: "Y", ytd: false };
+// PERIOD is the period start as epoch milliseconds in BMP's zone (1735686000000 = 2025 in Oslo),
+// PERIOD_TYPE the customer's period type id, YTD true to read from the start of the year.
+const PERIOD = {
+  selectedPeriod: Number(process.env.PERIOD || 1735686000000),
+  selectedPeriodType: process.env.PERIOD_TYPE || "Y",
+  ytd: (process.env.YTD || "false") === "true",
+};
+// SECOND_KPI adds a second tile on another KPI; without it the dashboard has one tile.
+const SECOND_KPI = process.env.SECOND_KPI;
 
 async function expectRejected(label, expectedStatus, call) {
   try {
@@ -36,9 +44,11 @@ async function run() {
   console.log(`\nAnalytics API: ${BASE_URL}\n`);
 
   // ── 1. Create a dashboard with two tiles ───────────────────
-  step("1. Create a dashboard with two kpiPerOrganisation tiles");
+  step(SECOND_KPI ? "1. Create a dashboard with two kpiPerOrganisation tiles" : "1. Create a dashboard with one kpiPerOrganisation tile");
   const spec = kpiPerOrganisationDashboard();
-  spec.tiles.push({ ...spec.tiles[0], title: "Second tile", data: { source: "kpiPerOrganisation", kpi: "2102456963588136301" } });
+  if (SECOND_KPI) {
+    spec.tiles.push({ ...spec.tiles[0], title: "Second tile", data: { source: "kpiPerOrganisation", kpi: SECOND_KPI } });
+  }
   const { data: dashboard } = await analytics.createDashboard(spec);
   const tileIds = dashboard.tiles.map((tile) => tile.id);
   ok(`Created: ${dashboard.id} with tiles ${tileIds.join(", ")}`);

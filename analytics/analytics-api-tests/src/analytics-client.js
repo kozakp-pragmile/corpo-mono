@@ -7,6 +7,9 @@ const DEV_TOKEN =
 
 export function createClient(baseUrl = DEFAULT_BASE_URL, { accessToken = DEV_TOKEN, prefix = "/public" } = {}) {
   const base = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+  if (base.includes("/CorpoWebserver")) {
+    throw new Error(`BASE points at BMP (${base}); these scripts need the analytics root, e.g. http://localhost:4360/analytics/server`);
+  }
   const dashboardsBase = `${prefix}/api/v1/dashboards`;
 
   function url(path, query) {

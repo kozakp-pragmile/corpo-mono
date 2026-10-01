@@ -1,6 +1,6 @@
 import { requestLine, columns, json } from "./log.js";
 
-const DEFAULT_BASE_URL = "http://localhost:4360/analytics/server";
+export const DEFAULT_BASE_URL = "http://localhost:4360/analytics/server";
 // Long-lived dev JWT (sub jwt-example, expires 2045) signed by the local auth-service keystore.
 const DEV_TOKEN =
   "eyJhbGciOiJSUzI1NiJ9.eyJjbGkiOiI0NTY3Iiwic3ViIjoiand0LWV4YW1wbGUiLCJhdWQiOiI0NTY3IiwibG4iOiJFeGFtcGxlIiwiZm4iOiJKV1QiLCJmaW5nZXJQcmludEhhc2giOiI3MDI0OTE0Y2MyNTFjZmU2OTZmOWYwZDg3NTdhNzA3ZTlhZDc3NTIzYmYzMDY5ZWRiODQ5N2M1NTFjMzUyNThhIiwiZ3IiOlsiRXZlcnlvbmUiXSwiZXhwIjoyMzc1MjIyNTM0LCJpYXQiOjE2NTUyMjI1MzQsImVtYWlsIjoiand0LWV4YW1wbGVAZXhhbXBsZS5jb20ifQ.Dox5PkcLaUuU3UYsj5vmNzt9czCVPfz4ptHaE_Z7pA4DvvZWyv0UPOBP9q9k2UCHZLR79Nqbw87o_b4MWweHAqNlXcuPQx36KIIwHn_K2ZH7Lw9vBGsGP5idEMo8OzPP5Fdx80v0jNyxVvqhVXpElmmIN5xY4mVfC-xkoM2HzGxt_QOD4vV98LajrM3Pu7bDyFFaKIaPWGBDMpfVSxK3mQpVD3IJmu7lLtOolc3o_ykkSLnXlUM_NJSHnuDxaMe7IMjYB5m5k-GZEat85YSXhpgXKI_-r4-Wv8OJMOtSM3lToW50SP1Amub313QHhrLF-0IojlGqU7dWeJdVWSkULQ";

@@ -1,14 +1,12 @@
 import { createClient } from "../analytics-client.js";
 import { step, ok, fail, summary } from "../log.js";
+import { BASE, KPI, TOKEN, settings } from "../settings.js";
 import { kpiPerOrganisationDashboard } from "./specs.js";
 
-const BASE_URL = process.env.BASE || "http://localhost:4360/analytics/server";
+const env = settings("dashboard create", { BASE, TOKEN, KPI });
 
-const analytics = createClient(BASE_URL, { accessToken: process.env.TOKEN || undefined });
-const privateAnalytics = createClient(BASE_URL, {
-  accessToken: process.env.TOKEN || undefined,
-  prefix: "/private",
-});
+const analytics = createClient(env.BASE, { accessToken: env.TOKEN });
+const privateAnalytics = createClient(env.BASE, { accessToken: env.TOKEN, prefix: "/private" });
 
 async function expectRejected(label, expectedStatus, call) {
   try {
@@ -24,11 +22,9 @@ async function expectRejected(label, expectedStatus, call) {
 }
 
 async function run() {
-  console.log(`\nAnalytics API: ${BASE_URL}\n`);
-
   // ── 1. Create via the public prefix ────────────────────────
   step("1. Create a schema version 2 dashboard via the public prefix");
-  const spec = kpiPerOrganisationDashboard();
+  const spec = kpiPerOrganisationDashboard({ kpi: env.KPI });
   const { data: dashboard, location } = await analytics.createDashboard(spec);
   if (/^D-[0-9a-f-]{36}$/.test(dashboard.id)) ok(`Dashboard id minted: ${dashboard.id}`);
   else fail(`Unexpected dashboard id: ${dashboard.id}`);
@@ -41,7 +37,7 @@ async function run() {
 
   // ── 2. Create via the private prefix ───────────────────────
   step("2. Create via the private prefix (Location carries /private)");
-  const { location: privateLocation } = await privateAnalytics.createDashboard(kpiPerOrganisationDashboard());
+  const { location: privateLocation } = await privateAnalytics.createDashboard(kpiPerOrganisationDashboard({ kpi: env.KPI }));
   if (privateLocation?.includes("/private/api/v1/dashboards/")) ok(`Location: ${privateLocation}`);
   else fail(`Unexpected Location: ${privateLocation}`);
 

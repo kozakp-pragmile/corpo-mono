@@ -1,23 +1,24 @@
 import { createClient } from "../analytics-client.js";
 import { step, ok, fail, summary } from "../log.js";
+import { BASE, KPI, PERIOD, PERIOD_TYPE, SECOND_KPI, TOKEN, YTD, settings } from "../settings.js";
 import { kpiPerOrganisationDashboard } from "./specs.js";
 
-const BASE_URL = process.env.BASE || "http://localhost:4360/analytics/server";
+const env = settings("dashboard data stream", {
+  BASE,
+  TOKEN: { ...TOKEN, needsRealValue: "Bedrock does not know the built-in dev user, so every kpiPerOrganisation tile fails" },
+  KPI,
+  PERIOD,
+  PERIOD_TYPE,
+  YTD,
+  SECOND_KPI,
+});
 
-const analytics = createClient(BASE_URL, { accessToken: process.env.TOKEN || undefined });
-if (!process.env.TOKEN) {
-  console.warn("TOKEN not set: using the built-in dev token, which Bedrock does not know; kpiPerOrganisation tiles will fail. Set TOKEN=<auth-service JWT>.");
-}
-
-// PERIOD is the period start as epoch milliseconds in BMP's zone (1735686000000 = 2025 in Oslo),
-// PERIOD_TYPE the customer's period type id, YTD true to read from the start of the year.
-const PERIOD = {
-  selectedPeriod: Number(process.env.PERIOD || 1735686000000),
-  selectedPeriodType: process.env.PERIOD_TYPE || "Y",
-  ytd: (process.env.YTD || "false") === "true",
+const analytics = createClient(env.BASE, { accessToken: env.TOKEN });
+const PERIOD_QUERY = {
+  selectedPeriod: Number(env.PERIOD),
+  selectedPeriodType: env.PERIOD_TYPE,
+  ytd: env.YTD === "true",
 };
-// SECOND_KPI adds a second tile on another KPI; without it the dashboard has one tile.
-const SECOND_KPI = process.env.SECOND_KPI;
 
 async function expectRejected(label, expectedStatus, call) {
   try {
@@ -44,13 +45,11 @@ function checkTileEvent(event, tileId) {
 }
 
 async function run() {
-  console.log(`\nAnalytics API: ${BASE_URL}\n`);
-
   // ── 1. Create a dashboard with two tiles ───────────────────
-  step(SECOND_KPI ? "1. Create a dashboard with two kpiPerOrganisation tiles" : "1. Create a dashboard with one kpiPerOrganisation tile");
-  const spec = kpiPerOrganisationDashboard();
-  if (SECOND_KPI) {
-    spec.tiles.push({ ...spec.tiles[0], title: "Second tile", data: { source: "kpiPerOrganisation", kpi: SECOND_KPI } });
+  step(env.SECOND_KPI ? "1. Create a dashboard with two kpiPerOrganisation tiles" : "1. Create a dashboard with one kpiPerOrganisation tile");
+  const spec = kpiPerOrganisationDashboard({ kpi: env.KPI });
+  if (env.SECOND_KPI) {
+    spec.tiles.push({ ...spec.tiles[0], title: "Second tile", data: { source: "kpiPerOrganisation", kpi: env.SECOND_KPI } });
   }
   const { data: dashboard } = await analytics.createDashboard(spec);
   const tileIds = dashboard.tiles.map((tile) => tile.id);
@@ -58,7 +57,7 @@ async function run() {
 
   // ── 2. Stream the selected period ──────────────────────────
   step("2. Stream tile data for the selected period");
-  const events = await analytics.streamDashboardData(dashboard.id, PERIOD);
+  const events = await analytics.streamDashboardData(dashboard.id, PERIOD_QUERY);
   const tileEvents = events.filter((event) => event.event === "tile");
   for (const tileId of tileIds) {
     const event = tileEvents.find((candidate) => candidate.data?.tileId === tileId);
@@ -73,7 +72,7 @@ async function run() {
 
   // ── 3. Stream from the year start ──────────────────────────
   step("3. Stream tile data from the year start (ytd=true)");
-  const ytdEvents = await analytics.streamDashboardData(dashboard.id, { ...PERIOD, ytd: true });
+  const ytdEvents = await analytics.streamDashboardData(dashboard.id, { ...PERIOD_QUERY, ytd: true });
   const ytdTile = ytdEvents.find((event) => event.event === "tile");
   if (ytdTile?.data?.answer?.period?.ytd === true) ok("answer period carries ytd=true");
   else fail(`answer period ytd: ${ytdTile?.data?.answer?.period?.ytd}`);
@@ -84,11 +83,11 @@ async function run() {
 
   step("5. Unknown dashboard id (expected 404)");
   await expectRejected("Unknown id", 404, () =>
-    analytics.streamDashboardData("D-00000000-0000-4000-8000-000000000000", PERIOD)
+    analytics.streamDashboardData("D-00000000-0000-4000-8000-000000000000", PERIOD_QUERY)
   );
 
   step("6. No token (expected 401)");
-  await expectRejected("No token", 401, () => analytics.streamDashboardData(dashboard.id, { ...PERIOD, token: null }));
+  await expectRejected("No token", 401, () => analytics.streamDashboardData(dashboard.id, { ...PERIOD_QUERY, token: null }));
 
   if (!summary("dashboard data stream")) {
     process.exitCode = 1;

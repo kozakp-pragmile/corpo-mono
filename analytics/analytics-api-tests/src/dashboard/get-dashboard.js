@@ -1,14 +1,12 @@
 import { createClient } from "../analytics-client.js";
 import { step, ok, fail, summary } from "../log.js";
+import { BASE, KPI, TOKEN, settings } from "../settings.js";
 import { kpiPerOrganisationDashboard } from "./specs.js";
 
-const BASE_URL = process.env.BASE || "http://localhost:4360/analytics/server";
+const env = settings("dashboard get", { BASE, TOKEN, KPI });
 
-const analytics = createClient(BASE_URL, { accessToken: process.env.TOKEN || undefined });
-const privateAnalytics = createClient(BASE_URL, {
-  accessToken: process.env.TOKEN || undefined,
-  prefix: "/private",
-});
+const analytics = createClient(env.BASE, { accessToken: env.TOKEN });
+const privateAnalytics = createClient(env.BASE, { accessToken: env.TOKEN, prefix: "/private" });
 
 async function expectRejected(label, expectedStatus, call) {
   try {
@@ -24,11 +22,9 @@ async function expectRejected(label, expectedStatus, call) {
 }
 
 async function run() {
-  console.log(`\nAnalytics API: ${BASE_URL}\n`);
-
   // ── 1. Create a dashboard to read back ─────────────────────
   step("1. Create a schema version 2 dashboard");
-  const { data: created } = await analytics.createDashboard(kpiPerOrganisationDashboard());
+  const { data: created } = await analytics.createDashboard(kpiPerOrganisationDashboard({ kpi: env.KPI }));
   ok(`Created: ${created.id}`);
 
   // ── 2. Get it back ──────────────────────────────────────────

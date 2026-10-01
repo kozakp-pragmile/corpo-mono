@@ -6,11 +6,11 @@
 # BMP must run with auth-service (bmp.sh with auth-service, which enables
 # tokenAuthentication) so jwtFilter accepts the JWT. Override via env:
 #   TOKEN=<raw JWT> RID=<object rid> KPI=<kpi rid> ./bmp-data-sources.sh
-#   BASE=https://corpo-dev.local/CorpoWebserver TOKEN=... ./bmp-data-sources.sh
+#   BASE=http://localhost:8080/CorpoWebserver TOKEN=... ./bmp-data-sources.sh
 # TOKEN is the raw auth-service JWT, without "Bearer ".
 set -euo pipefail
 
-BASE="${BASE:-http://localhost:8080/CorpoWebserver}"
+BASE="${BASE:-https://corpo-dev.local/CorpoWebserver}"
 TOKEN="${TOKEN:-}"
 RID="${RID:-}"
 KPI="${KPI:-}"

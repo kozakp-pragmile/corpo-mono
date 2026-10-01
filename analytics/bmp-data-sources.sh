@@ -11,12 +11,26 @@
 set -euo pipefail
 
 BASE="${BASE:-http://localhost:8080/CorpoWebserver}"
-TOKEN="${TOKEN:?set TOKEN to an auth-service JWT}"
-RID="${RID:-<rid>}"
-KPI="${KPI:-<kpi rid>}"
+TOKEN="${TOKEN:-}"
+RID="${RID:-}"
+KPI="${KPI:-}"
 PERIOD="${PERIOD:-$(date +%s)000}"
 PERIOD_TYPE="${PERIOD_TYPE:-M}"
 YTD="${YTD:-false}"
+
+setting() {
+  printf '  %-12s %s\n' "$1" "$2"
+}
+
+echo "Settings (env wins over default)"
+setting BASE "$BASE"
+setting TOKEN "$([[ -n "$TOKEN" ]] && echo "set (${#TOKEN} chars)" || echo "SET THIS: auth-service JWT of a BMP user, without Bearer")"
+setting RID "${RID:-SET THIS: rid of the organisation whose structure is read}"
+setting KPI "${KPI:-SET THIS: rid of the KPI read per organisation}"
+setting PERIOD "$PERIOD"
+setting PERIOD_TYPE "$PERIOD_TYPE"
+setting YTD "$YTD"
+[[ -n "$TOKEN" ]] || { echo "Nothing answers without TOKEN; set it and run again." >&2; exit 1; }
 
 SOURCES="$BASE/api/data/sources"
 AUTH="Authorization: Bearer $TOKEN"

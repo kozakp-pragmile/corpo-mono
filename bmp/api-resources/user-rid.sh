@@ -7,7 +7,7 @@
 # login-id defaults to BMP_USER, so a non-admin can check himself with no argument.
 set -euo pipefail
 
-BASE="${BASE:-https://corpo-bug.local/CorpoWebserver}"
+BASE="${BASE:-https://corpo-dev.local/CorpoWebserver}"
 TOKEN="${TOKEN:-}"
 BMP_USER="${BMP_USER:-}"
 BMP_PASS="${BMP_PASS:-}"

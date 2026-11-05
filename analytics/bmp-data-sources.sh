@@ -10,13 +10,13 @@
 # TOKEN is the raw auth-service JWT, without "Bearer ".
 set -euo pipefail
 
-BASE="${BASE:-https://corpo-dev.local/CorpoWebserver}"
-TOKEN="${TOKEN:-}"
-RID="${RID:-}"
-KPI="${KPI:-}"
-PERIOD="${PERIOD:-$(date +%s)000}"
-PERIOD_TYPE="${PERIOD_TYPE:-M}"
-YTD="${YTD:-false}"
+export BASE="${BASE:-https://corpo-dev.local/CorpoWebserver}"
+export TOKEN="${TOKEN:-}"
+export RID="${RID:-}"
+export KPI="${KPI:-}"
+export PERIOD="${PERIOD:-$(date +%s)000}"
+export PERIOD_TYPE="${PERIOD_TYPE:-M}"
+export YTD="${YTD:-false}"
 
 setting() {
   printf '  %-12s %s\n' "$1" "$2"

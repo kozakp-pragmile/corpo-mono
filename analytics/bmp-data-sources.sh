@@ -32,9 +32,9 @@ setting PERIOD_TYPE "$PERIOD_TYPE"
 setting YTD "$YTD"
 [[ -n "$TOKEN" ]] || { echo "Nothing answers without TOKEN; set it and run again." >&2; exit 1; }
 
-SOURCES="$BASE/api/data/sources"
-AUTH="Authorization: Bearer $TOKEN"
-PERIOD_PARAMS=("selectedPeriod==$PERIOD" "selectedPeriodType==$PERIOD_TYPE" "ytd==$YTD")
+export SOURCES="$BASE/api/data/sources"
+export AUTH="Authorization: Bearer $TOKEN"
+export PERIOD_PARAMS=("selectedPeriod==$PERIOD" "selectedPeriodType==$PERIOD_TYPE" "ytd==$YTD")
 
 step() {
   printf '\n== %s ==\n' "$1"
